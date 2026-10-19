@@ -1,0 +1,58 @@
+{
+  "name": "Merged AI — Night Shift (scan → plan → report)",
+  "nodes": [
+    {
+      "parameters": { "rule": { "interval": [ { "field": "cronExpression", "expression": "40 23 * * *" } ] } },
+      "id": "1a2b3c4d-0001-4000-8000-000000000001",
+      "name": "Night Shift 23:40",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": { "url": "https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=15", "options": {} },
+      "id": "1a2b3c4d-0002-4000-8000-000000000002",
+      "name": "Scan Trends (Hacker News)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [240, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://ollama:11434/api/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"model\": \"llama3.1:8b\", \"stream\": false, \"prompt\": \"You are the planning brain of an autonomous research system. Here are today's top tech trends as JSON: \" + JSON.stringify($json.hits) + \" — 1) Pick the 3 trends with the most opportunity. 2) For each, give a research question and one concrete action. Be concise.\" }",
+        "options": { "timeout": 300000 }
+      },
+      "id": "1a2b3c4d-0003-4000-8000-000000000003",
+      "name": "Brain Plan (Ollama)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 0]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "report-field", "name": "night_shift_report", "value": "={{ $json.response }}", "type": "string" },
+            { "id": "date-field", "name": "generated_at", "value": "={{ $now.toISO() }}", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1a2b3c4d-0004-4000-8000-000000000004",
+      "name": "Night Shift Report",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [720, 0]
+    }
+  ],
+  "connections": {
+    "Night Shift 23:40": { "main": [[{ "node": "Scan Trends (Hacker News)", "type": "main", "index": 0 }]] },
+    "Scan Trends (Hacker News)": { "main": [[{ "node": "Brain Plan (Ollama)", "type": "main", "index": 0 }]] },
+    "Brain Plan (Ollama)": { "main": [[{ "node": "Night Shift Report", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}
