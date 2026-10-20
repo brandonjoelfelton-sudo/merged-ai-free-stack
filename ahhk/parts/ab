@@ -1,1 +1,92 @@
-PLACEHOLDER_AB
+e{animation:tilt 1.2s ease-in-out infinite}
+@keyframes tilt{0%,100%{transform:rotate(-9deg) scale(1.02)}50%{transform:rotate(9deg) scale(1.02)}}
+.char.yawn .char-face{animation:yawnA 2.4s ease-in-out infinite}
+@keyframes yawnA{0%,100%{transform:scale(1)}45%{transform:scale(1.18,1.3)}}
+.char.sleep .char-face{animation:sleepA 4.5s ease-in-out infinite; opacity:.8}
+@keyframes sleepA{0%,100%{transform:rotate(-14deg) translateY(3px)}50%{transform:rotate(-10deg) translateY(0)}}
+.char.wave .char-face{animation:waveA .9s ease-in-out 3}
+@keyframes waveA{0%,100%{transform:rotate(0)}25%{transform:rotate(-20deg)}75%{transform:rotate(15deg)}}
+.char.hop .char-face{animation:hopA .55s ease-out 2}
+@keyframes hopA{0%,100%{transform:translateY(0)}40%{transform:translateY(-22px)}}
+.char-bubble{position:absolute; bottom:calc(100% + 12px); left:0; width:max-content; max-width:250px;
+  background:var(--bg2); border:1px solid var(--card-line); padding:10px 14px; font-size:.8rem;
+  line-height:1.5; opacity:0; transform:translateY(8px); transition:.35s; pointer-events:none;
+  font-family:var(--font-body); color:var(--ink)}
+.char-bubble.show{opacity:1; transform:translateY(0)}
+.char-bubble::after{content:""; position:absolute; top:100%; left:26px;
+  border:7px solid transparent; border-top-color:var(--card-line)}
+.heart{background:none; border:1px solid var(--card-line); color:var(--ink); margin-top:14px;
+  padding:4px 12px; cursor:pointer; font-size:.8rem; transition:.3s; opacity:.7}
+.heart:hover,.heart.on{color:var(--accent); border-color:var(--accent); opacity:1}
+/* ── AHHK BOT BODY (image mascot, theme-reactive) ───── */
+.char-body{position:relative; font-size:var(--csz,96px); animation:bob var(--bobspeed,3.5s) ease-in-out infinite;
+  transition:transform .4s; transform-origin:50% 80%}
+.char-img{width:1em; height:auto; display:block;
+  filter:hue-rotate(var(--charrot,0deg)) saturate(var(--charsat,1.15)) drop-shadow(0 10px 22px rgba(0,0,0,.55));
+  transition:filter 1.2s ease}
+.char.think .char-face{animation:none}
+.char.think .char-body{animation:tilt 1.2s ease-in-out infinite}
+.char.yawn .char-body{animation:yawnA 2.4s ease-in-out infinite}
+.char.sleep .char-body{animation:sleepA 4.5s ease-in-out infinite; opacity:.75}
+.char.wave .char-body{animation:waveA .9s ease-in-out 3}
+.char.hop .char-body{animation:hopA .55s ease-out 2}
+.char-mood{position:absolute; right:-.08em; bottom:.02em; font-size:.3em; line-height:1;
+  background:var(--bg2); border:1px solid var(--card-line); border-radius:50%; padding:.12em;
+  min-width:1em; text-align:center}
+.char-mood:empty{display:none}
+.char-hat{position:absolute; top:-.2em; left:50%; transform:translateX(-50%) rotate(-10deg);
+  font-size:.46em; z-index:2; pointer-events:none}
+.char-hat:empty{display:none}
+.char-glasses{position:absolute; top:.26em; left:50%; transform:translateX(-50%);
+  font-size:.38em; z-index:2; pointer-events:none}
+.char-glasses:empty{display:none}
+.char-gear{position:absolute; top:-8px; right:-14px; z-index:3; background:var(--bg2);
+  border:1px solid var(--card-line); color:var(--ink); border-radius:50%; width:26px; height:26px;
+  cursor:pointer; font-size:.75rem; opacity:0; transition:.3s}
+.char:hover .char-gear{opacity:.9}
+/* ── CUSTOMIZATION PANEL (Bitmoji-style) ────────────── */
+.custom-panel{position:fixed; left:28px; bottom:180px; z-index:70; width:min(320px, calc(100vw - 48px));
+  background:var(--bg2); border:1px solid var(--card-line); box-shadow:0 20px 60px rgba(0,0,0,.55);
+  padding:18px; display:none; font-family:var(--font-body)}
+.custom-panel.open{display:block}
+.cp-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px}
+.cp-head b{font-family:var(--font-display); letter-spacing:.25em; color:var(--accent); font-size:.9rem}
+.cp-head button{background:none; border:none; color:var(--ink); cursor:pointer; opacity:.7; font-size:1rem}
+.cp-sec{font-size:.62rem; letter-spacing:.25em; text-transform:uppercase; color:var(--accent2); margin:14px 0 8px}
+.cp-row{display:flex; gap:8px; flex-wrap:wrap}
+.cp-row button{background:var(--card-bg); border:1px solid var(--card-line); color:var(--ink);
+  padding:7px 12px; cursor:pointer; font-size:.8rem; transition:.25s}
+.cp-row button:hover{border-color:var(--accent)}
+.cp-row button.sel{background:var(--accent); color:var(--bg1); border-color:var(--accent)}
+.cp-row button.sw{width:34px; height:34px; padding:0; border-radius:50%}
+.cp-row button.sw.sel{outline:2px solid var(--ink); outline-offset:2px}
+.cp-row input{flex:1; background:var(--card-bg); border:1px solid var(--card-line); color:var(--ink);
+  padding:9px 12px; font-size:.9rem; outline:none; font-family:var(--font-body)}
+.cp-note{margin-top:14px; font-size:.62rem; letter-spacing:.15em; text-transform:uppercase; opacity:.55}
+</style>
+</head>
+<body>
+<div class="photo-layer" id="photoA"></div>
+<div class="photo-layer" id="photoB"></div>
+<div class="photo-veil"></div>
+<div class="river" id="river" aria-hidden="true"></div>
+
+<div class="wrap">
+  <nav>
+    <div class="logo" onclick="go('home')">A H H K</div>
+    <div class="nav-links">
+      <a href="#/home" data-nav="home">Daily Fuel</a>
+      <a href="#/quotes" data-nav="quotes">The Vault</a>
+      <a href="#/assistant" data-nav="assistant">Ask Ahhk</a>
+    </div>
+  </nav>
+  <main id="app"></main>
+</div>
+
+<footer id="foot"></footer>
+
+<div class="char" id="char" title="Ahhk">
+  <div class="char-bubble" id="char-bubble"></div>
+  <div class="char-body" id="char-body">
+    <span class="char-hat" id="char-hat"></span>
+    <img class="char-img" id="char-img" src="data:image/webp;base64,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
