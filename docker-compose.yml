@@ -4,6 +4,9 @@ services:
   ollama:
     image: ollama/ollama:latest
     container_name: brain-ollama
+    environment:
+      # lets browser apps (e.g. the MUSE site) call the brain from localhost
+      - OLLAMA_ORIGINS=*
     ports:
       - "11434:11434"
     volumes:
