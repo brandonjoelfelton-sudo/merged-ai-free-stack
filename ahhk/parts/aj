@@ -1,0 +1,186 @@
+!== 2){
+    sleepState = 2; setChar(FACE.sleep, "sleep"); charSay("💤 💤 💤", 0);
+  }else if(idle > 3*60*1000 && sleepState === 0){
+    sleepState = 1; yawnedAt = Date.now();
+    setChar(FACE.yawn, "yawn");
+    charSay("*yaaaawn*… untouched for 3 minutes. Tap me if you need fuel.", 7000);
+  }
+}, 15000);
+/* wandering + pondering while awake */
+setInterval(()=>{
+  if(charBusy || sleepState > 0) return;
+  charEl.style.left = (3 + Math.random()*32) + "vw";
+  if(Math.random() < .4){
+    charBusy = true; setChar(FACE.think, "think");
+    const thoughts = [
+      `pondering: “${shuffle(QUOTES)[0].t}”`,
+      MEM.favQuotes.length ? `still chewing on that quote you saved…` : `wondering which quote you'll save first…`,
+      MEM.name ? `thinking about ${MEM.name}'s next move…` : `thinking about your next move…`,
+      `${memCount()} memories and counting. Nothing gets lost.`
+    ];
+    charSay("💭 " + thoughts[Math.floor(Math.random()*thoughts.length)], 6000);
+    setTimeout(()=>{ charBusy = false; if(sleepState===0) setChar(FACE.idle,""); }, 6000);
+  }
+}, 45000);
+/* click the character */
+charEl.addEventListener("click", ()=>{
+  lastActivity = Date.now(); sleepState = 0;
+  const r = Math.random();
+  if(r < .45){
+    const q = shuffle(QUOTES)[0];
+    setChar(FACE.happy, "hop"); charSay(`“${q.t}” — ${q.a}`, 7000);
+  }else if(r < .75){
+    const facts = [
+      `I've logged ${MEM.visits} visit${MEM.visits>1?"s":""} from you.`,
+      MEM.favQuotes.length ? `You've saved ${MEM.favQuotes.length} quote${MEM.favQuotes.length>1?"s":""} to my memory.` : `Heart a quote in the Vault and I'll remember it forever.`,
+      Object.keys(MEM.dwell).length ? `I've learned your taste — I bias themes toward colors you linger on.` : `Linger on a theme you like and I'll learn to favor it.`,
+      MEM.name ? `I remember you, ${MEM.name}. Always.` : `Tell me "my name is …" in chat and I'll never forget it.`
+    ];
+    setChar(FACE.wink, "hop"); charSay(facts[Math.floor(Math.random()*facts.length)], 6000);
+  }else{
+    setChar(FACE.wow, "hop"); charSay("You rang?", 2500);
+  }
+  setTimeout(()=>{ if(!charBusy && sleepState===0) setChar(FACE.idle,""); }, 3200);
+});
+
+/* ══════════ LEARNING UPGRADES (redefine core functions before first paint) ══════════ */
+let firstRoll = true;
+function rollTheme(){ // learned variant: biases hue toward what you dwell on
+  recordDwell();
+  const hue = learnedHue();
+  MEM.lastHue = hue; MEM.themeRolls++; saveMem();
+  const hue2 = (hue + 40 + Math.floor(Math.random()*120)) % 360;
+  const dark = Math.random() > .25;
+  const r = document.documentElement.style;
+  r.setProperty("--hue", hue); r.setProperty("--hue2", hue2);
+  r.setProperty("--angle", Math.floor(Math.random()*360)+"deg");
+  r.setProperty("--gx1", Math.floor(Math.random()*80)+"%");
+  r.setProperty("--gy1", Math.floor(Math.random()*60)+"%");
+  r.setProperty("--gx2", 20+Math.floor(Math.random()*80)+"%");
+  r.setProperty("--gy2", 40+Math.floor(Math.random()*60)+"%");
+  if(dark){
+    r.setProperty("--bg1", `hsl(${hue}, 24%, ${6+Math.random()*6}%)`);
+    r.setProperty("--bg2", `hsl(${hue2}, 26%, ${10+Math.random()*8}%)`);
+    r.setProperty("--ink", `hsl(${hue}, 20%, 94%)`);
+    r.setProperty("--accent", `hsl(${(hue+180)%360}, 75%, 62%)`);
+    r.setProperty("--accent2", `hsl(${hue2}, 65%, 68%)`);
+    r.setProperty("--card-bg", "rgba(255,255,255,.04)");
+    r.setProperty("--card-line", "rgba(255,255,255,.12)");
+  }else{
+    r.setProperty("--bg1", `hsl(${hue}, 40%, 93%)`);
+    r.setProperty("--bg2", `hsl(${hue2}, 38%, 88%)`);
+    r.setProperty("--ink", `hsl(${hue}, 30%, 12%)`);
+    r.setProperty("--accent", `hsl(${(hue+180)%360}, 70%, 40%)`);
+    r.setProperty("--accent2", `hsl(${hue2}, 55%, 35%)`);
+    r.setProperty("--card-bg", "rgba(255,255,255,.5)");
+    r.setProperty("--card-line", "rgba(0,0,0,.12)");
+  }
+  const pair = FONTS[Math.floor(Math.random()*FONTS.length)];
+  loadFonts(pair);
+  r.setProperty("--font-display", pair[0]);
+  r.setProperty("--font-body", pair[1]);
+  if(!firstRoll && !charBusy && sleepState===0){
+    setChar(FACE.happy, "hop");
+    charSay(Math.random()<.5 ? "Ooh — new look." : "Fresh coat of paint. Learned a little more about your taste.", 3500);
+    setTimeout(()=>{ if(!charBusy && sleepState===0) setChar(FACE.idle,""); }, 2500);
+  }
+  firstRoll = false;
+  if(typeof applyCustom === "function") applyCustom(); // keep the bot's glow synced to the new theme
+  return {layout: LAYOUTS[Math.floor(Math.random()*LAYOUTS.length)]};
+}
+/* vault with save-to-memory hearts */
+let _pool = [];
+function pageQuotes(){
+  _pool = shuffle(QUOTES).slice(0, 18);
+  app.innerHTML = `
+    <div class="page-head">
+      <h1>The Vault</h1>
+      <p>${QUOTES.length} quotes from women and men who built, fought, created and endured.
+      Tap ♡ on any quote — Ahhk remembers it forever.</p>
+    </div>
+    <div class="grid">
+      ${_pool.map((q,i)=>{
+        const saved = MEM.favQuotes.some(f=>f.t===q.t);
+        return `<div class="card"><p>“${q.t}”</p><span>— ${q.a}</span>
+          <button class="heart ${saved?"on":""}" id="h${i}" onclick="fav(${i})">${saved?"♥ saved":"♡ remember"}</button></div>`;
+      }).join("")}
+    </div>`;
+}
+function fav(i){
+  const q = _pool[i]; if(!q) return;
+  const idx = MEM.favQuotes.findIndex(f=>f.t===q.t);
+  const btn = document.getElementById("h"+i);
+  if(idx >= 0){ MEM.favQuotes.splice(idx,1); if(btn){btn.classList.remove("on"); btn.textContent="♡ remember";} }
+  else{
+    MEM.favQuotes.push({t:q.t, a:q.a, at:Date.now()});
+    if(btn){btn.classList.add("on"); btn.textContent="♥ saved";}
+    setChar(FACE.love, "hop"); charSay("Saved. That's in my permanent memory now.", 3500);
+    setTimeout(()=>{ if(!charBusy && sleepState===0) setChar(FACE.idle,""); }, 2500);
+  }
+  saveMem();
+}
+/* personalized greeting */
+function greet(ctx){
+  const g = shuffle(QUOTES)[0];
+  const intro = MEM.visits <= 1
+    ? "I'm Ahhk. I live here, I learn your taste, and I never forget. What are we building today?"
+    : `Visit #${MEM.visits}${MEM.name ? ", "+MEM.name : ""} — good to see you again. What are we building today?`;
+  addMsg(ctx, "muse", `“${g.t}” — ${g.a}\n\n${intro}`);
+}
+/* chat: thinking face + permanent chat memory + name learning */
+async function send(ctx){
+  const input = document.getElementById(ctx+"-input");
+  const text = input.value.trim(); if(!text) return;
+  input.value = ""; lastActivity = Date.now();
+  addMsg(ctx, "you", text);
+  const thinking = addMsg(ctx, "muse", `<span class="typing">●●●</span>`);
+  charBusy = true; setChar(FACE.think, "think"); charSay("💭 thinking…", 0);
+  const nm = text.match(/(?:call me|my name is)\s+([A-Za-z]{2,20})/i);
+  if(nm){ MEM.name = nm[1][0].toUpperCase()+nm[1].slice(1); saveMem(); }
+  history.push({role:"user", content:text});
+  let reply;
+  if(brainOnline){
+    try{
+      const r = await fetch("http://localhost:11434/api/chat", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({model:"llama3.1:8b", stream:false,
+          messages:[{role:"system", content:SYSTEM}, ...history.slice(-10)]})
+      });
+      const j = await r.json();
+      reply = j.message && j.message.content;
+    }catch(e){ brainOnline=false; }
+  }
+  if(!reply){
+    reply = FALLBACK[Math.floor(Math.random()*FALLBACK.length)];
+    if(nm) reply = `Locked in, ${MEM.name} — I'll remember that forever. ` + reply;
+    else if(MEM.name && Math.random()<.3) reply = MEM.name + ", " + reply[0].toLowerCase() + reply.slice(1);
+  }else if(nm && !new RegExp(MEM.name,"i").test(reply)){
+    reply = `Got it, ${MEM.name} — stored in permanent memory.\n\n` + reply;
+  }
+  history.push({role:"assistant", content:reply});
+  MEM.chat.push({t:Date.now(), you:text, ahhk:reply}); saveMem();
+  if(thinking) thinking.innerHTML = `<span class="who">Ahhk</span>${reply.replace(/</g,"&lt;").replace(/\n/g,"<br>")}`;
+  bubEl.classList.remove("show"); charBusy = false;
+  if(sleepState===0){ setChar(FACE.happy, "hop"); setTimeout(()=>{ if(!charBusy && sleepState===0) setChar(FACE.idle,""); }, 2200); }
+}
+/* brain status also shows memory count */
+async function pingBrain(ctx){
+  const el = document.getElementById(ctx+"-status");
+  try{
+    const r = await fetch("http://localhost:11434/api/tags", {signal: AbortSignal.timeout(2500)});
+    brainOnline = r.ok;
+  }catch(e){ brainOnline = false; }
+  if(el) el.innerHTML = (brainOnline
+    ? `<span class="status-dot on"></span>local brain connected — llama3.1`
+    : `<span class="status-dot off"></span>local brain offline — fuel bank mode`)
+    + ` &nbsp;·&nbsp; 🧠 ${memCount()} memories held`;
+}
+
+/* ══════════ PHOTO BACKDROP ENGINE ══════════ */
+const PHOTO_POOLS = {
+  nature: [ // forests, mountains, oceans — for dreams, courage, growth quotes
+    "1441974231531-c6227db76b6e","1470071459604-3b5ec3a7fe05","1506905925346-21bda4d32df4",
+    "1518495973542-4542c06a5843","1447752875215-b2761acb3c5d","1507525428034-b723cf961d3e",
+    "1472214103451-9374bd1c798e","1493246507139-91e8fad9978e"
+  ],
+  city: [ // s
