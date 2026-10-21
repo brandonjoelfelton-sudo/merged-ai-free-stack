@@ -1,200 +1,137 @@
-kylines, streets at night — for build/work/action/success quotes
-    "1477959858617-67f85cf4f1df","1449824913935-59a10b8d2000","1444723121867-7a241cacace9",
-    "1480714378408-67cf0d13bc1b","1519501025264-65ba15a82390","1514565131-fce0801e578c"
-  ],
-  street: [ // graffiti, paint, walls — for fight/grind/warrior quotes
-    "1541961017774-22349e4a1262","1557672172-298e090bd0f1","1550684376-efcbd6e3f031",
-    "1547891654-e66ed7ebb968","1526304640581-d334cdbbf45e","1572044162444-ad60f128bdea"
-  ]
-};
-function vibeOf(q){
-  const s = (q.t + " " + q.a).toLowerCase();
-  if(/storm|sail|wings|fly|dream|beauty|road|pav|grow|light|dark|ship|star|garden|seed/.test(s)) return "nature";
-  if(/fight|champion|warrior|bet|brick|courage|brave|strength|rise|grind|muscle|contender|sting|butterfly/.test(s)) return "street";
-  if(/build|work|doing|start|money|success|world|change|act|creat|decision|step|focus/.test(s)) return "city";
-  return ["nature","city","street"][Math.floor(Math.random()*3)];
+ry-grid">${cards}</div>` : `<p class="avs-hint">Nothing saved yet. Hit "Save character" up top to bank this build.</p>`}</div>`;
 }
-const photoA = document.getElementById("photoA"), photoB = document.getElementById("photoB");
-let photoFront = null, curVibe = "nature", curPhotoId = null;
-function unsplashURL(id){ return `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1600&q=70`; }
-function applyPhoto(layer, url){
-  layer.style.backgroundImage = `url("${url}")`;
-  layer.classList.add("on");
-  const other = (layer === photoA) ? photoB : photoA;
-  other.classList.remove("on");
-  photoFront = layer;
-}
-function crossfadePhoto(id){
-  curPhotoId = id;
-  const back = (photoFront === photoA) ? photoB : photoA;
-  const img = new Image();
-  img.onload = ()=> applyPhoto(back, unsplashURL(id));
-  img.onerror = ()=>{ // any dead link → guaranteed-live fallback photo
-    const fb = `https://picsum.photos/seed/ahhk-${id}/1600/900`;
-    const im2 = new Image();
-    im2.onload = ()=> applyPhoto(back, fb);
-    im2.src = fb;
-  };
-  img.src = unsplashURL(id);
-}
-function setThemePhoto(page){
-  const q = (page === "home" && window._heroQ) ? window._heroQ
-            : QUOTES[Math.floor(Math.random()*QUOTES.length)];
-  curVibe = vibeOf(q);
-  const pool = PHOTO_POOLS[curVibe];
-  let id; do{ id = pool[Math.floor(Math.random()*pool.length)]; } while(id === curPhotoId && pool.length > 1);
-  crossfadePhoto(id);
-  MEM.lastVibe = curVibe; saveMem();
-  if(!charBusy && sleepState === 0 && Math.random() < .3){
-    const mood = {nature:"mood: wide open. breathe.", street:"mood: grind. walls can't hold you.", city:"mood: build something."}[curVibe];
-    charSay(mood, 2800);
+function studioPreview(){ const s = document.getElementById("avs-stage"); if(s) s.innerHTML = avatarSVG(MEM.avatar, null, null); }
+function avPatch(key, value){
+  if(key==="eyeSize"||key==="headSize") value = +value;
+  MEM.avatar = validAvatar(Object.assign({}, MEM.avatar, {[key]:value}));
+  saveMem(); renderChar("idle"); studioPreview();
+  const opt = document.getElementById("avs-options");
+  if(!opt) return;
+  if(key==="eyeSize"||key==="headSize"){
+    const inp = opt.querySelector(`input[data-k="${key}"]`);
+    const h3 = inp && inp.closest(".avs-section") && inp.closest(".avs-section").querySelector("h3 b");
+    if(h3) h3.textContent = value + "%";
+  }else if(key!=="shellColor" && key!=="accentColor" && key!=="visorColor"){
+    opt.innerHTML = studioOptions();
   }
 }
-/* keep switching combinations even if you stay on one page */
-setInterval(()=>{
-  const pool = PHOTO_POOLS[curVibe] || PHOTO_POOLS.nature;
-  let id; do{ id = pool[Math.floor(Math.random()*pool.length)]; } while(id === curPhotoId && pool.length > 1);
-  crossfadePhoto(id);
-}, 45000);
-
-/* hero remembers which quote it showed (so the photo can match it) */
-function pageHome(layout){
-  const q = QUOTES[Math.floor(Math.random()*QUOTES.length)];
-  window._heroQ = q;
-  app.innerHTML = `
-    <section class="hero ${layout}">
-      <div class="kicker">Daily fuel · fresh theme every visit</div>
-      <blockquote>“${q.t}”</blockquote>
-      <cite>— ${q.a}</cite>
-      <div class="btn-row">
-        <button class="btn solid" onclick="go('quotes')">Open the Vault</button>
-        <button class="btn" onclick="reroll()">New Theme + Quote</button>
-        <button class="btn" onclick="go('assistant')">Ask Ahhk</button>
+function pageStudio(){
+  studioTab = studioTab || "looks";
+  const a = MEM.avatar;
+  document.getElementById("app").innerHTML = `<div class="avs-studio">
+    <div class="avs-head">
+      <div><h2>🎨 Avatar Studio</h2><p>Build Ahhk's look — saved forever, drives the assistant everywhere on this page.</p></div>
+      <div class="avs-head-actions">
+        <button type="button" class="avs-btn secondary" id="avs-random">🎲 Randomize</button>
+        <button type="button" class="avs-btn primary" id="avs-save">💾 Save character</button>
       </div>
-    </section>`;
-}
-/* route with photo matching */
-function route(){
-  const page = (location.hash.replace("#/","") || "home");
-  const theme = rollTheme();
-  buildRiver();
-  document.querySelectorAll("[data-nav]").forEach(a=>a.classList.toggle("active", a.dataset.nav===page));
-  if(page==="quotes") pageQuotes();
-  else if(page==="assistant") pageAssistant();
-  else pageHome(theme.layout);
-  window.scrollTo({top:0});
-  setThemePhoto(page);
-}
-
-/* ══════════ CUSTOMIZATION ENGINE (Bitmoji-style, saved forever) ══════════ */
-const DEFCUSTOM = {color:"auto", size:"m", hat:"", faceg:"", energy:"normal", botName:"Ahhk"};
-MEM.custom = Object.assign({}, DEFCUSTOM, MEM.custom || {});
-const BOT_BASE_HUE = 210; // the mascot's native glow hue (blue)
-function applyCustom(){
-  const c = MEM.custom;
-  const sz  = {s:"72px", m:"100px", l:"140px"}[c.size] || "100px";
-  const spd = {calm:"5.5s", normal:"3.5s", hyper:"2s"}[c.energy] || "3.5s";
-  charEl.style.setProperty("--csz", sz);
-  charEl.style.setProperty("--bobspeed", spd);
-  document.getElementById("char-hat").textContent = c.hat;
-  document.getElementById("char-glasses").textContent = c.faceg;
-  charEl.title = c.botName || "Ahhk";
-  let rot;
-  if(c.color === "auto"){
-    const hue = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--hue")) || 200;
-    rot = hue - BOT_BASE_HUE; // shift the bot's glow to match the live theme
-  }else{
-    rot = parseInt(c.color) || 0;
-  }
-  charEl.style.setProperty("--charrot", rot + "deg");
-  // reflect selections in the panel
-  const mark = (rowId, attr, val) => {
-    const row = document.getElementById(rowId); if(!row) return;
-    row.querySelectorAll("button").forEach(b => b.classList.toggle("sel", b.dataset[attr] === String(val)));
-  };
-  mark("cp-colors","color",c.color); mark("cp-size","size",c.size);
-  mark("cp-hat","hat",c.hat); mark("cp-faceg","faceg",c.faceg); mark("cp-energy","energy",c.energy);
-  const nm = document.getElementById("cp-name"); if(nm && document.activeElement !== nm) nm.value = c.botName;
-  saveMem();
-}
-function toggleCustom(){
-  document.getElementById("custom-panel").classList.toggle("open");
-}
-document.getElementById("char-gear").addEventListener("click", e=>{
-  e.stopPropagation();
-  toggleCustom();
-});
-/* panel bindings — every click restyles + saves to permanent memory */
-function bindCustom(rowId, attr, cast){
-  const row = document.getElementById(rowId);
-  if(!row) return;
-  row.addEventListener("click", e=>{
-    const b = e.target.closest("button"); if(!b) return;
-    MEM.custom[attr] = cast ? cast(b.dataset[attr]) : b.dataset[attr];
-    applyCustom();
-    if(!charBusy && sleepState===0){
-      setChar(FACE.wink, "hop");
-      charSay("Noted. Saved forever.", 2200);
-      setTimeout(()=>{ if(!charBusy && sleepState===0) setChar(FACE.idle,""); }, 1800);
+    </div>
+    <div class="avs-shell">
+      <aside class="avs-side">${AV_TABS.map(([v,l,s]) => `<button type="button" class="avs-tab${studioTab===v?" active":""}" data-tab="${v}"><span class="avs-symbol">${s}</span><span>${l}</span></button>`).join("")}</aside>
+      <section class="avs-preview">
+        <div class="avs-stage" id="avs-stage"></div>
+        <div class="avs-preview-bar">
+          <input type="text" id="avs-name" maxlength="48" value="${a.name.replace(/"/g,"&quot;")}" placeholder="Character name">
+          <button type="button" class="avs-btn secondary" id="avs-export-svg">⬇ SVG</button>
+          <button type="button" class="avs-btn secondary" id="avs-export-png">⬇ PNG</button>
+          <button type="button" class="avs-btn secondary" id="avs-export-json">⬇ JSON</button>
+          <label class="avs-btn secondary" for="avs-import-json" style="cursor:pointer">⬆ Import</label>
+          <input type="file" id="avs-import-json" accept=".json,application/json" hidden>
+        </div>
+      </section>
+      <section class="avs-panel"><div class="avs-options" id="avs-options"></div></section>
+    </div>
+  </div>`;
+  document.getElementById("avs-options").innerHTML = studioOptions();
+  studioPreview();
+  /* bindings */
+  const opts = document.getElementById("avs-options");
+  opts.addEventListener("click", e => {
+    const b = e.target.closest("[data-k]"); if(b){ avPatch(b.dataset.k, b.dataset.v); return; }
+    const ld = e.target.closest("[data-load]"); if(ld){ MEM.avatar = validAvatar(MEM.avatarLib[+ld.dataset.load]); applyAvatar(); pageStudio(); charSay("Loaded " + MEM.avatar.name + " ✨", 2600); return; }
+    const del = e.target.closest("[data-del]"); if(del){ MEM.avatarLib.splice(+del.dataset.del,1); saveMem(); document.getElementById("avs-options").innerHTML = studioOptions(); return; }
+    if(e.target.closest("#avs-match-page")){
+      const hex = cssHex("--accent"); if(hex) avPatch("accentColor", hex);
+      charSay("Synced to the page theme 🎨", 2400);
     }
   });
+  opts.addEventListener("input", e => {
+    const el = e.target.closest("[data-k]"); if(!el) return;
+    if(el.type === "range" || el.type === "color") avPatch(el.dataset.k, el.value);
+  });
+  document.querySelectorAll(".avs-tab").forEach(t => t.addEventListener("click", () => {
+    studioTab = t.dataset.tab;
+    document.querySelectorAll(".avs-tab").forEach(x => x.classList.toggle("active", x===t));
+    opts.innerHTML = studioOptions();
+  }));
+  const nameInput = document.getElementById("avs-name");
+  nameInput.addEventListener("change", () => {
+    MEM.avatar.name = nameInput.value.trim().slice(0,48) || "Ahhk";
+    applyAvatar(); charSay("Call me " + MEM.avatar.name + " 😎", 2600);
+  });
+  document.getElementById("avs-random").addEventListener("click", () => {
+    const pick = l => l[Math.floor(Math.random()*l.length)][0];
+    const pickC = l => l[Math.floor(Math.random()*l.length)];
+    MEM.avatar = validAvatar({name:MEM.avatar.name, head:pick(AV_HEADS), expression:pick(AV_EXPR), eyes:pick(AV_EYES),
+      eyeSize:75+Math.floor(Math.random()*11)*5, headSize:75+Math.floor(Math.random()*11)*5,
+      body:pick(AV_BODIES), outfit:pick(AV_OUTFITS), accessory:pick(AV_ACC),
+      shellColor:pickC(AV_SHELLS), accentColor:pickC(AV_ACCENTS),
+      visorColor:pickC(["#080f24","#140b26","#06231f","#230b13","#10261b","#231d08","#0a1a2b","#1d0b26"]),
+      finish:pick(AV_FINISH), background:MEM.avatar.background, personality:pick(AV_PERS), motion:pick(AV_MOTIONS)});
+    applyAvatar(); pageStudio(); charSay("New random build! 🎲", 2400);
+  });
+  document.getElementById("avs-save").addEventListener("click", () => {
+    const lib = MEM.avatarLib || (MEM.avatarLib = []);
+    const copy = Object.assign({}, MEM.avatar, {id:Date.now().toString(36)+Math.random().toString(36).slice(2,8)});
+    const dupe = lib.findIndex(c => c.name === copy.name);
+    if(dupe >= 0) lib[dupe] = copy; else lib.unshift(copy);
+    MEM.avatarLib = lib.slice(0,20); saveMem();
+    charSay("Banked in my memory vault 💾 (" + MEM.avatarLib.length + "/20)", 2800);
+  });
+  const dl = (blob, name) => { const a2=document.createElement("a"); a2.href=URL.createObjectURL(blob); a2.download=name; a2.click(); setTimeout(()=>URL.revokeObjectURL(a2.href),4000); };
+  const cleanSVG = w => avatarSVG(Object.assign({}, MEM.avatar), MEM.avatar.motion, null, w);
+  document.getElementById("avs-export-svg").addEventListener("click", () => {
+    dl(new Blob([cleanSVG(1000)],{type:"image/svg+xml"}), "ahhk-avatar.svg"); charSay("SVG exported ⬇", 2200);
+  });
+  document.getElementById("avs-export-png").addEventListener("click", () => {
+    const url = URL.createObjectURL(new Blob([cleanSVG(1000)],{type:"image/svg+xml"}));
+    const im = new Image();
+    im.onload = () => {
+      const c = document.createElement("canvas"); c.width=1000; c.height=1200;
+      c.getContext("2d").drawImage(im,0,0,1000,1200);
+      c.toBlob(b => { dl(b,"ahhk-avatar.png"); charSay("PNG exported ⬇", 2200); URL.revokeObjectURL(url); }, "image/png");
+    };
+    im.src = url;
+  });
+  document.getElementById("avs-export-json").addEventListener("click", () => {
+    dl(new Blob([JSON.stringify(MEM.avatar,null,2)],{type:"application/json"}), "ahhk-avatar.json"); charSay("JSON config exported ⬇", 2200);
+  });
+  document.getElementById("avs-import-json").addEventListener("change", e => {
+    const file = e.target.files[0]; if(!file) return;
+    const rd = new FileReader();
+    rd.onload = () => { try{ MEM.avatar = validAvatar(JSON.parse(rd.result)); applyAvatar(); pageStudio(); charSay("Imported! ✨", 2400); }catch{ charSay("That file isn't a valid avatar config 😕", 2800); } };
+    rd.readAsText(file);
+  });
 }
-bindCustom("cp-colors","color");
-bindCustom("cp-size","size");
-bindCustom("cp-hat","hat");
-bindCustom("cp-faceg","faceg");
-bindCustom("cp-energy","energy");
-document.getElementById("cp-name").addEventListener("change", e=>{
-  MEM.custom.botName = e.target.value.trim() || "Ahhk";
-  applyCustom();
-  charSay(`Call me ${MEM.custom.botName} then. Locked in.`, 3500);
-});
-
-/* export a desktop icon that mirrors the current customization */
-function exportIcon(){
-  const c = MEM.custom;
-  const S = 256;
-  const cv = document.createElement("canvas"); cv.width = cv.height = S;
-  const x = cv.getContext("2d");
-  const rr = (x, w, h, r)=>{ // rounded-rect path (with fallback)
-    if(x.roundRect){ x.beginPath(); x.roundRect(0,0,w,h,r); return; }
-    x.beginPath();
-    x.moveTo(r,0); x.arcTo(w,0,w,h,r); x.arcTo(w,h,0,h,r); x.arcTo(0,h,0,0,r); x.arcTo(0,0,w,0,r); x.closePath();
-  };
-  const rot = c.color === "auto"
-    ? (parseInt(getComputedStyle(document.documentElement).getPropertyValue("--hue")) || 200) - BOT_BASE_HUE
-    : (parseInt(c.color) || 0);
-  const hue = (BOT_BASE_HUE + rot + 360) % 360;
-  x.save(); rr(x, S, S, 56); x.clip();
-  x.fillStyle = "#101018"; x.fillRect(0,0,S,S);
-  const g = x.createRadialGradient(S/2, S*0.62, 10, S/2, S*0.6, S*0.5);
-  g.addColorStop(0, `hsla(${hue},85%,60%,.5)`); g.addColorStop(1, "transparent");
-  x.fillStyle = g; x.fillRect(0,0,S,S);
-  const img = new Image();
-  img.onload = ()=>{
-    const w = S*.86, h = w * img.height / img.width;
-    try{ x.filter = `hue-rotate(${rot}deg) saturate(1.15)`; }catch(e){}
-    x.drawImage(img, (S-w)/2, (S-h)/2 - 6, w, h);
-    try{ x.filter = "none"; }catch(e){}
-    x.textAlign = "center"; x.textBaseline = "middle";
-    if(c.hat){ x.save(); x.translate(S/2, S*.1); x.rotate(-.18); x.font = `${S*.2}px serif`; x.fillText(c.hat, 0, 0); x.restore(); }
-    if(c.faceg){ x.font = `${S*.17}px serif`; x.fillText(c.faceg, S/2, S*.33); }
-    x.restore();
-    cv.toBlob(b=>{
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(b);
-      a.download = "ahhk-icon.png";
-      a.click();
-      setChar(FACE.wink, "hop");
-      charSay("Icon exported — save it over ~/Ahhk/ahhk-icon.png and your desktop icon will match me.", 8000);
-      setTimeout(()=>{ if(!charBusy && sleepState===0) setChar(FACE.idle,""); }, 2500);
-    }, "image/png");
-  };
-  img.onerror = ()=> charSay("Couldn't load my portrait — something's off.", 5000);
-  img.src = document.getElementById("char-img").src;
+function cssHex(varName){
+  const t = document.createElement("div"); t.style.color = `var(${varName})`;
+  document.body.appendChild(t); const c = getComputedStyle(t).color; t.remove();
+  const m = c.match(/\d+/g); if(!m) return null;
+  return "#" + m.slice(0,3).map(v => (+v).toString(16).padStart(2,"0")).join("");
 }
 
-applyCustom(); // dress the bot before first paint
+
+
+/* first-boot migration: carry old customization forward into the avatar config */
+if(!MEM.avatar){
+  MEM.avatar = Object.assign({}, AV_DEFAULT,
+    {name:(MEM.custom && MEM.custom.botName) || "Ahhk"});
+  if(MEM.custom && MEM.custom.hat==="👑") MEM.avatar.accessory = "crown";
+  if(MEM.custom && MEM.custom.faceg==="🕶️") MEM.avatar.accessory = "glasses";
+  if(MEM.custom && MEM.custom.faceg==="🥽") MEM.avatar.accessory = "headphones";
+}
+MEM.custom = Object.assign({size:"m", energy:"normal"}, MEM.custom || {});
+applyAvatar(); // dress the bot before first paint
 route(); // first paint (learned + photo-matched + styled)
 </script>
 </body>
