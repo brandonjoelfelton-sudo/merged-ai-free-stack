@@ -104,7 +104,7 @@ const bubEl  = document.getElementById("char-bubble");
 let charBusy = false, sleepState = 0; // 0 awake, 1 yawning, 2 sleeping
 let lastActivity = Date.now(), yawnedAt = 0;
 function setChar(face, cls){
-  moodEl.textContent = cls ? face : "";   // mood badge shows state; idle = clean bot
+  moodEl.textContent = "";              // mood badge disabled - no emoji            
   charEl.className = "char " + (cls||"");
   const pose = (typeof CHAR_POSE !== "undefined" && CHAR_POSE[cls||""]) || {motion:"idle"};
   renderChar(pose.motion, pose.expr);
