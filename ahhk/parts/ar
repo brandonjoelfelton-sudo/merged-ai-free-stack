@@ -1,0 +1,137 @@
+askerville',serif","'Work Sans',sans-serif"],
+ ["'Bebas Neue',sans-serif","'Inter',sans-serif"]
+];
+const LAYOUTS = ["left","center","split"];
+function rollTheme(){
+  const hue = Math.floor(Math.random()*360);
+  const hue2 = (hue + 40 + Math.floor(Math.random()*120)) % 360;
+  const dark = Math.random() > .25; // mostly dark, sometimes light
+  const r = document.documentElement.style;
+  r.setProperty("--hue", hue); r.setProperty("--hue2", hue2);
+  r.setProperty("--angle", Math.floor(Math.random()*360)+"deg");
+  r.setProperty("--gx1", Math.floor(Math.random()*80)+"%");
+  r.setProperty("--gy1", Math.floor(Math.random()*60)+"%");
+  r.setProperty("--gx2", 20+Math.floor(Math.random()*80)+"%");
+  r.setProperty("--gy2", 40+Math.floor(Math.random()*60)+"%");
+  if(dark){
+    r.setProperty("--bg1", `hsl(${hue}, 24%, ${6+Math.random()*6}%)`);
+    r.setProperty("--bg2", `hsl(${hue2}, 26%, ${10+Math.random()*8}%)`);
+    r.setProperty("--ink", `hsl(${hue}, 20%, 94%)`);
+    r.setProperty("--accent", `hsl(${(hue+180)%360}, 75%, 62%)`);
+    r.setProperty("--accent2", `hsl(${hue2}, 65%, 68%)`);
+    r.setProperty("--card-bg", "rgba(255,255,255,.04)");
+    r.setProperty("--card-line", "rgba(255,255,255,.12)");
+  }else{
+    r.setProperty("--bg1", `hsl(${hue}, 40%, 93%)`);
+    r.setProperty("--bg2", `hsl(${hue2}, 38%, 88%)`);
+    r.setProperty("--ink", `hsl(${hue}, 30%, 12%)`);
+    r.setProperty("--accent", `hsl(${(hue+180)%360}, 70%, 40%)`);
+    r.setProperty("--accent2", `hsl(${hue2}, 55%, 35%)`);
+    r.setProperty("--card-bg", "rgba(255,255,255,.5)");
+    r.setProperty("--card-line", "rgba(0,0,0,.12)");
+  }
+  const pair = FONTS[Math.floor(Math.random()*FONTS.length)];
+  loadFonts(pair);
+  r.setProperty("--font-display", pair[0]);
+  r.setProperty("--font-body", pair[1]);
+  return {layout: LAYOUTS[Math.floor(Math.random()*LAYOUTS.length)]};
+}
+function loadFonts(pair){
+  const fams = [...new Set(pair.map(f=>f.split(",")[0].replace(/'/g,"").trim()))];
+  const q = fams.map(f=>"family="+f.replace(/ /g,"+")+":ital,wght@0,400;0,700;1,400").join("&");
+  let link = document.getElementById("gfonts");
+  if(!link){ link=document.createElement("link"); link.id="gfonts"; link.rel="stylesheet"; document.head.appendChild(link); }
+  link.href = "https://fonts.googleapis.com/css2?"+q+"&display=swap";
+}
+
+/* ══════════ QUOTE RIVER (background) ══════════ */
+function buildRiver(){
+  const river = document.getElementById("river");
+  river.innerHTML = "";
+  const rows = 7, pool = shuffle(QUOTES);
+  for(let i=0;i<rows;i++){
+    const row = document.createElement("div");
+    row.className = "river-row";
+    const chunk = pool.slice(i*5, i*5+5).map(q=>`<span>“${q.t}” <b>— ${q.a}</b></span>`).join("");
+    row.innerHTML = chunk + chunk; // seamless loop
+    const dur = 60 + Math.random()*80;
+    row.style.animation = `${i%2? "driftR":"driftL"} ${dur}s linear infinite`;
+    row.style.transform = `translateY(${i*14}vh)`;
+    river.appendChild(row);
+  }
+}
+
+/* ══════════ PAGES ══════════ */
+const app = document.getElementById("app");
+function pageHome(layout){
+  const q = QUOTES[Math.floor(Math.random()*QUOTES.length)];
+  app.innerHTML = `
+    <section class="hero ${layout}">
+      <div class="kicker">Daily fuel · fresh theme every visit</div>
+      <blockquote>“${q.t}”</blockquote>
+      <cite>— ${q.a}</cite>
+      <div class="btn-row">
+        <button class="btn solid" onclick="go('quotes')">Open the Vault</button>
+        <button class="btn" onclick="reroll()">New Theme + Quote</button>
+        <button class="btn" onclick="go('assistant')">Ask Ahhk</button>
+      </div>
+    </section>`;
+}
+function pageQuotes(){
+  const pool = shuffle(QUOTES).slice(0, 18);
+  app.innerHTML = `
+    <div class="page-head">
+      <h1>The Vault</h1>
+      <p>${QUOTES.length} quotes from women and men who built, fought, created and endured.
+      Every visit reshuffles the deck and re-skins the room. Click nothing — just absorb.</p>
+    </div>
+    <div class="grid">
+      ${pool.map(q=>`<div class="card"><p>“${q.t}”</p><span>— ${q.a}</span><div class="tag">${/Davis|Earhart|Angelou|Ginsburg|Yousafzai|Williams|Tubman|Keller|Parks|Curie|Rowling|Lauder|Walker|Alcott|Kahlo|Chanel|Parton|Gordon|Rand/.test(q.a)?"her words":"his words"}</div></div>`).join("")}
+    </div>`;
+}
+function pageAssistant(){
+  app.innerHTML = `
+    <div class="page-head">
+      <h1>Ask Ahhk</h1>
+      <p>Your personal assistant — part coach, part strategist. When your local brain (Ollama) is running,
+      Ahhk answers with real AI. Offline, she answers from her built-in fuel bank.</p>
+    </div>
+    <div class="chat-full">
+      <div class="msgs" id="p-msgs"></div>
+      <div class="brain-status" id="p-status"><span class="status-dot off"></span>checking local brain…</div>
+      <div class="composer">
+        <input id="p-input" placeholder="Tell Ahhk what you're working on…" autocomplete="off">
+        <button onclick="send('p')">Send</button>
+      </div>
+    </div>`;
+  bindInput("p"); pingBrain("p"); greet("p");
+}
+
+/* ══════════ ROUTER ══════════ */
+function go(page){ location.hash = "#/"+page; }
+function reroll(){ route(); }
+function route(){
+  const page = (location.hash.replace("#/","") || "home");
+  const theme = rollTheme();
+  buildRiver();
+  document.querySelectorAll("[data-nav]").forEach(a=>a.classList.toggle("active", a.dataset.nav===page));
+  if(page==="quotes") pageQuotes();
+  else if(page==="assistant") pageAssistant();
+  else if(page==="studio") pageStudio();
+  else pageHome(theme.layout);
+  window.scrollTo({top:0});
+}
+window.addEventListener("hashchange", route);
+
+/* ══════════ Ahhk — assistant engine ══════════ */
+const SYSTEM = `You are Ahhk, a personal assistant living inside a motivational quotes website.
+You blend the directness of a coach with the precision of a strategist. You give short, punchy,
+actionable answers — fuel first, then one concrete next step. You quote great thinkers (women and men)
+when it lands naturally. Never be preachy. Keep replies under 120 words unless asked for depth.`;
+let history = [];
+let brainOnline = false;
+const FALLBACK = [
+ "Here's your fuel: “The way to get started is to quit talking and begin doing.” — Walt Disney. Now: pick the single smallest step on your goal and do it in the next 10 minutes.",
+ "“It always seems impossible until it's done.” — Nelson Mandela. Write down the one thing you've been avoiding. That's today's rep.",
+ "“Every great dream begins with a dreamer.” — Harriet Tubman. Stand up, water, one deep breath — then 25 minutes of focused work. Timer on.",
+ "“We suffer more often in imaginatio
