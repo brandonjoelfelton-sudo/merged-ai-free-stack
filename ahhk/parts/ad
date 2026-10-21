@@ -1,1 +1,159 @@
-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
+a brick every day. Eventually you'll look up and you'll have a brick wall.", a:"Nipsey Hussle"},
+ {t:"Your time is limited, so don't waste it living someone else's life.", a:"Steve Jobs"},
+ {t:"The people who are crazy enough to think they can change the world are the ones who do.", a:"Steve Jobs"},
+ {t:"Whether you think you can or you think you can't, you're right.", a:"Henry Ford"},
+ {t:"It does not matter how slowly you go as long as you do not stop.", a:"Confucius"},
+ {t:"We suffer more often in imagination than in reality.", a:"Seneca"},
+ {t:"A winner is a dreamer who never gives up.", a:"Nelson Mandela"},
+ {t:"The question isn't who is going to let me; it's who is going to stop me.", a:"Ayn Rand"},
+ {t:"Do one thing every day that scares you.", a:"Eleanor Roosevelt"},
+ {t:"Courage is like a muscle. We strengthen it by use.", a:"Ruth Gordon"},
+ {t:"If you don't like the road you're walking, start paving another one.", a:"Dolly Parton"},
+ {t:"You'll never do a whole lot unless you're brave enough to try.", a:"Dolly Parton"},
+ {t:"The way to get started is to quit talking and begin doing.", a:"Walt Disney"}
+];
+const shuffle = a => a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(p=>p[1]);
+
+/* ══════════ RANDOM THEME ENGINE ══════════ */
+const FONTS = [
+ ["'Playfair Display',serif","'Inter',sans-serif"],
+ ["'Cormorant Garamond',serif","'Space Grotesk',sans-serif"],
+ ["'DM Serif Display',serif","'DM Sans',sans-serif"],
+ ["'Sora',sans-serif","'Sora',sans-serif"],
+ ["'Libre Baskerville',serif","'Work Sans',sans-serif"],
+ ["'Bebas Neue',sans-serif","'Inter',sans-serif"]
+];
+const LAYOUTS = ["left","center","split"];
+function rollTheme(){
+  const hue = Math.floor(Math.random()*360);
+  const hue2 = (hue + 40 + Math.floor(Math.random()*120)) % 360;
+  const dark = Math.random() > .25; // mostly dark, sometimes light
+  const r = document.documentElement.style;
+  r.setProperty("--hue", hue); r.setProperty("--hue2", hue2);
+  r.setProperty("--angle", Math.floor(Math.random()*360)+"deg");
+  r.setProperty("--gx1", Math.floor(Math.random()*80)+"%");
+  r.setProperty("--gy1", Math.floor(Math.random()*60)+"%");
+  r.setProperty("--gx2", 20+Math.floor(Math.random()*80)+"%");
+  r.setProperty("--gy2", 40+Math.floor(Math.random()*60)+"%");
+  if(dark){
+    r.setProperty("--bg1", `hsl(${hue}, 24%, ${6+Math.random()*6}%)`);
+    r.setProperty("--bg2", `hsl(${hue2}, 26%, ${10+Math.random()*8}%)`);
+    r.setProperty("--ink", `hsl(${hue}, 20%, 94%)`);
+    r.setProperty("--accent", `hsl(${(hue+180)%360}, 75%, 62%)`);
+    r.setProperty("--accent2", `hsl(${hue2}, 65%, 68%)`);
+    r.setProperty("--card-bg", "rgba(255,255,255,.04)");
+    r.setProperty("--card-line", "rgba(255,255,255,.12)");
+  }else{
+    r.setProperty("--bg1", `hsl(${hue}, 40%, 93%)`);
+    r.setProperty("--bg2", `hsl(${hue2}, 38%, 88%)`);
+    r.setProperty("--ink", `hsl(${hue}, 30%, 12%)`);
+    r.setProperty("--accent", `hsl(${(hue+180)%360}, 70%, 40%)`);
+    r.setProperty("--accent2", `hsl(${hue2}, 55%, 35%)`);
+    r.setProperty("--card-bg", "rgba(255,255,255,.5)");
+    r.setProperty("--card-line", "rgba(0,0,0,.12)");
+  }
+  const pair = FONTS[Math.floor(Math.random()*FONTS.length)];
+  loadFonts(pair);
+  r.setProperty("--font-display", pair[0]);
+  r.setProperty("--font-body", pair[1]);
+  return {layout: LAYOUTS[Math.floor(Math.random()*LAYOUTS.length)]};
+}
+function loadFonts(pair){
+  const fams = [...new Set(pair.map(f=>f.split(",")[0].replace(/'/g,"").trim()))];
+  const q = fams.map(f=>"family="+f.replace(/ /g,"+")+":ital,wght@0,400;0,700;1,400").join("&");
+  let link = document.getElementById("gfonts");
+  if(!link){ link=document.createElement("link"); link.id="gfonts"; link.rel="stylesheet"; document.head.appendChild(link); }
+  link.href = "https://fonts.googleapis.com/css2?"+q+"&display=swap";
+}
+
+/* ══════════ QUOTE RIVER (background) ══════════ */
+function buildRiver(){
+  const river = document.getElementById("river");
+  river.innerHTML = "";
+  const rows = 7, pool = shuffle(QUOTES);
+  for(let i=0;i<rows;i++){
+    const row = document.createElement("div");
+    row.className = "river-row";
+    const chunk = pool.slice(i*5, i*5+5).map(q=>`<span>“${q.t}” <b>— ${q.a}</b></span>`).join("");
+    row.innerHTML = chunk + chunk; // seamless loop
+    const dur = 60 + Math.random()*80;
+    row.style.animation = `${i%2? "driftR":"driftL"} ${dur}s linear infinite`;
+    row.style.transform = `translateY(${i*14}vh)`;
+    river.appendChild(row);
+  }
+}
+
+/* ══════════ PAGES ══════════ */
+const app = document.getElementById("app");
+function pageHome(layout){
+  const q = QUOTES[Math.floor(Math.random()*QUOTES.length)];
+  app.innerHTML = `
+    <section class="hero ${layout}">
+      <div class="kicker">Daily fuel · fresh theme every visit</div>
+      <blockquote>“${q.t}”</blockquote>
+      <cite>— ${q.a}</cite>
+      <div class="btn-row">
+        <button class="btn solid" onclick="go('quotes')">Open the Vault</button>
+        <button class="btn" onclick="reroll()">New Theme + Quote</button>
+        <button class="btn" onclick="go('assistant')">Ask Ahhk</button>
+      </div>
+    </section>`;
+}
+function pageQuotes(){
+  const pool = shuffle(QUOTES).slice(0, 18);
+  app.innerHTML = `
+    <div class="page-head">
+      <h1>The Vault</h1>
+      <p>${QUOTES.length} quotes from women and men who built, fought, created and endured.
+      Every visit reshuffles the deck and re-skins the room. Click nothing — just absorb.</p>
+    </div>
+    <div class="grid">
+      ${pool.map(q=>`<div class="card"><p>“${q.t}”</p><span>— ${q.a}</span><div class="tag">${/Davis|Earhart|Angelou|Ginsburg|Yousafzai|Obama|Winfrey|Roosevelt|Beyoncé|Williams|Alcott|Kahlo|Chanel|Parton|Gordon|Rand/.test(q.a)?"her words":"his words"}</div></div>`).join("")}
+    </div>`;
+}
+function pageAssistant(){
+  app.innerHTML = `
+    <div class="page-head">
+      <h1>Ask Ahhk</h1>
+      <p>Your personal assistant — part coach, part strategist. When your local brain (Ollama) is running,
+      Ahhk answers with real AI. Offline, she answers from her built-in fuel bank.</p>
+    </div>
+    <div class="chat-full">
+      <div class="msgs" id="p-msgs"></div>
+      <div class="brain-status" id="p-status"><span class="status-dot off"></span>checking local brain…</div>
+      <div class="composer">
+        <input id="p-input" placeholder="Tell Ahhk what you're working on…" autocomplete="off">
+        <button onclick="send('p')">Send</button>
+      </div>
+    </div>`;
+  bindInput("p"); pingBrain("p"); greet("p");
+}
+
+/* ══════════ ROUTER ══════════ */
+function go(page){ location.hash = "#/"+page; }
+function reroll(){ route(); }
+function route(){
+  const page = (location.hash.replace("#/","") || "home");
+  const theme = rollTheme();
+  buildRiver();
+  document.querySelectorAll("[data-nav]").forEach(a=>a.classList.toggle("active", a.dataset.nav===page));
+  if(page==="quotes") pageQuotes();
+  else if(page==="assistant") pageAssistant();
+  else if(page==="studio") pageStudio();
+  else pageHome(theme.layout);
+  window.scrollTo({top:0});
+}
+window.addEventListener("hashchange", route);
+
+/* ══════════ Ahhk — assistant engine ══════════ */
+const SYSTEM = `You are Ahhk, a personal assistant living inside a motivational quotes website.
+You blend the directness of a coach with the precision of a strategist. You give short, punchy,
+actionable answers — fuel first, then one concrete next step. You quote great thinkers (women and men)
+when it lands naturally. Never be preachy. Keep replies under 120 words unless asked for depth.`;
+let history = [];
+let brainOnline = false;
+const FALLBACK = [
+ "Here's your fuel: “The way to get started is to quit talking and begin doing.” — Walt Disney. Now: pick the single smallest step on your goal and do it in the next 10 minutes.",
+ "“It always seems impossible until it's done.” — Nelson Mandela. Write down the one thing you've been avoiding. That's today's rep.",
+ "“You have within you right now, everything you need.” — Oprah Winfrey. Stand up, water, one deep breath — then 25 minutes of focused work. Timer on.",
+ "“We suffer more often in imagination than in reality.” — Seneca.
