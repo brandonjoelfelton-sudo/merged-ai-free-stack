@@ -1,4 +1,19 @@
-e"},
+:"Martin Luther King Jr."},
+ {t:"The time is always right to do what is right.", a:"Martin Luther King Jr."},
+ {t:"It always seems impossible until it's done.", a:"Nelson Mandela"},
+ {t:"I never lose. I either win or learn.", a:"Nelson Mandela"},
+ {t:"The most important thing is to try and inspire people so that they can be great in whatever they want to do.", a:"Kobe Bryant"},
+ {t:"Everything negative — pressure, challenges — is all an opportunity for me to rise.", a:"Kobe Bryant"},
+ {t:"You have power over your mind — not outside events. Realize this, and you will find strength.", a:"Marcus Aurelius"},
+ {t:"The impediment to action advances action. What stands in the way becomes the way.", a:"Marcus Aurelius"},
+ {t:"Success is not final, failure is not fatal: it is the courage to continue that counts.", a:"Winston Churchill"},
+ {t:"If you're going through hell, keep going.", a:"Winston Churchill"},
+ {t:"Float like a butterfly, sting like a bee. The hands can't hit what the eyes can't see.", a:"Muhammad Ali"},
+ {t:"Don't count the days, make the days count.", a:"Muhammad Ali"},
+ {t:"The successful warrior is the average man, with laser-like focus.", a:"Bruce Lee"},
+ {t:"Do not pray for an easy life; pray for the strength to endure a difficult one.", a:"Bruce Lee"},
+ {t:"The highest human act is to inspire.", a:"Nipsey Hussle"},
+ {t:"Instead of trying to build a brick wall, lay a brick every day. Eventually you'll look up and you'll have a brick wall.", a:"Nipsey Hussle"},
  {t:"Your time is limited, so don't waste it living someone else's life.", a:"Steve Jobs"},
  {t:"The people who are crazy enough to think they can change the world are the ones who do.", a:"Steve Jobs"},
  {t:"Whether you think you can or you think you can't, you're right.", a:"Henry Ford"},
@@ -10,150 +25,46 @@ e"},
  {t:"Courage is like a muscle. We strengthen it by use.", a:"Ruth Gordon"},
  {t:"If you don't like the road you're walking, start paving another one.", a:"Dolly Parton"},
  {t:"You'll never do a whole lot unless you're brave enough to try.", a:"Dolly Parton"},
- {t:"The way to get started is to quit talking and begin doing.", a:"Walt Disney"}
-];
-const shuffle = a => a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(p=>p[1]);
-
-/* ══════════ RANDOM THEME ENGINE ══════════ */
-const FONTS = [
- ["'Playfair Display',serif","'Inter',sans-serif"],
- ["'Cormorant Garamond',serif","'Space Grotesk',sans-serif"],
- ["'DM Serif Display',serif","'DM Sans',sans-serif"],
- ["'Sora',sans-serif","'Sora',sans-serif"],
- ["'Libre Baskerville',serif","'Work Sans',sans-serif"],
- ["'Bebas Neue',sans-serif","'Inter',sans-serif"]
-];
-const LAYOUTS = ["left","center","split"];
-function rollTheme(){
-  const hue = Math.floor(Math.random()*360);
-  const hue2 = (hue + 40 + Math.floor(Math.random()*120)) % 360;
-  const dark = Math.random() > .25; // mostly dark, sometimes light
-  const r = document.documentElement.style;
-  r.setProperty("--hue", hue); r.setProperty("--hue2", hue2);
-  r.setProperty("--angle", Math.floor(Math.random()*360)+"deg");
-  r.setProperty("--gx1", Math.floor(Math.random()*80)+"%");
-  r.setProperty("--gy1", Math.floor(Math.random()*60)+"%");
-  r.setProperty("--gx2", 20+Math.floor(Math.random()*80)+"%");
-  r.setProperty("--gy2", 40+Math.floor(Math.random()*60)+"%");
-  if(dark){
-    r.setProperty("--bg1", `hsl(${hue}, 24%, ${6+Math.random()*6}%)`);
-    r.setProperty("--bg2", `hsl(${hue2}, 26%, ${10+Math.random()*8}%)`);
-    r.setProperty("--ink", `hsl(${hue}, 20%, 94%)`);
-    r.setProperty("--accent", `hsl(${(hue+180)%360}, 75%, 62%)`);
-    r.setProperty("--accent2", `hsl(${hue2}, 65%, 68%)`);
-    r.setProperty("--card-bg", "rgba(255,255,255,.04)");
-    r.setProperty("--card-line", "rgba(255,255,255,.12)");
-  }else{
-    r.setProperty("--bg1", `hsl(${hue}, 40%, 93%)`);
-    r.setProperty("--bg2", `hsl(${hue2}, 38%, 88%)`);
-    r.setProperty("--ink", `hsl(${hue}, 30%, 12%)`);
-    r.setProperty("--accent", `hsl(${(hue+180)%360}, 70%, 40%)`);
-    r.setProperty("--accent2", `hsl(${hue2}, 55%, 35%)`);
-    r.setProperty("--card-bg", "rgba(255,255,255,.5)");
-    r.setProperty("--card-line", "rgba(0,0,0,.12)");
-  }
-  const pair = FONTS[Math.floor(Math.random()*FONTS.length)];
-  loadFonts(pair);
-  r.setProperty("--font-display", pair[0]);
-  r.setProperty("--font-body", pair[1]);
-  return {layout: LAYOUTS[Math.floor(Math.random()*LAYOUTS.length)]};
-}
-function loadFonts(pair){
-  const fams = [...new Set(pair.map(f=>f.split(",")[0].replace(/'/g,"").trim()))];
-  const q = fams.map(f=>"family="+f.replace(/ /g,"+")+":ital,wght@0,400;0,700;1,400").join("&");
-  let link = document.getElementById("gfonts");
-  if(!link){ link=document.createElement("link"); link.id="gfonts"; link.rel="stylesheet"; document.head.appendChild(link); }
-  link.href = "https://fonts.googleapis.com/css2?"+q+"&display=swap";
-}
-
-/* ══════════ QUOTE RIVER (background) ══════════ */
-function buildRiver(){
-  const river = document.getElementById("river");
-  river.innerHTML = "";
-  const rows = 7, pool = shuffle(QUOTES);
-  for(let i=0;i<rows;i++){
-    const row = document.createElement("div");
-    row.className = "river-row";
-    const chunk = pool.slice(i*5, i*5+5).map(q=>`<span>“${q.t}” <b>— ${q.a}</b></span>`).join("");
-    row.innerHTML = chunk + chunk; // seamless loop
-    const dur = 60 + Math.random()*80;
-    row.style.animation = `${i%2? "driftR":"driftL"} ${dur}s linear infinite`;
-    row.style.transform = `translateY(${i*14}vh)`;
-    river.appendChild(row);
-  }
-}
-
-/* ══════════ PAGES ══════════ */
-const app = document.getElementById("app");
-function pageHome(layout){
-  const q = QUOTES[Math.floor(Math.random()*QUOTES.length)];
-  app.innerHTML = `
-    <section class="hero ${layout}">
-      <div class="kicker">Daily fuel · fresh theme every visit</div>
-      <blockquote>“${q.t}”</blockquote>
-      <cite>— ${q.a}</cite>
-      <div class="btn-row">
-        <button class="btn solid" onclick="go('quotes')">Open the Vault</button>
-        <button class="btn" onclick="reroll()">New Theme + Quote</button>
-        <button class="btn" onclick="go('assistant')">Ask Ahhk</button>
-      </div>
-    </section>`;
-}
-function pageQuotes(){
-  const pool = shuffle(QUOTES).slice(0, 18);
-  app.innerHTML = `
-    <div class="page-head">
-      <h1>The Vault</h1>
-      <p>${QUOTES.length} quotes from women and men who built, fought, created and endured.
-      Every visit reshuffles the deck and re-skins the room. Click nothing — just absorb.</p>
-    </div>
-    <div class="grid">
-      ${pool.map(q=>`<div class="card"><p>“${q.t}”</p><span>— ${q.a}</span><div class="tag">${/Davis|Earhart|Angelou|Ginsburg|Yousafzai|Williams|Tubman|Keller|Parks|Curie|Rowling|Lauder|Walker|Alcott|Kahlo|Chanel|Parton|Gordon|Rand/.test(q.a)?"her words":"his words"}</div></div>`).join("")}
-    </div>`;
-}
-function pageAssistant(){
-  app.innerHTML = `
-    <div class="page-head">
-      <h1>Ask Ahhk</h1>
-      <p>Your personal assistant — part coach, part strategist. When your local brain (Ollama) is running,
-      Ahhk answers with real AI. Offline, she answers from her built-in fuel bank.</p>
-    </div>
-    <div class="chat-full">
-      <div class="msgs" id="p-msgs"></div>
-      <div class="brain-status" id="p-status"><span class="status-dot off"></span>checking local brain…</div>
-      <div class="composer">
-        <input id="p-input" placeholder="Tell Ahhk what you're working on…" autocomplete="off">
-        <button onclick="send('p')">Send</button>
-      </div>
-    </div>`;
-  bindInput("p"); pingBrain("p"); greet("p");
-}
-
-/* ══════════ ROUTER ══════════ */
-function go(page){ location.hash = "#/"+page; }
-function reroll(){ route(); }
-function route(){
-  const page = (location.hash.replace("#/","") || "home");
-  const theme = rollTheme();
-  buildRiver();
-  document.querySelectorAll("[data-nav]").forEach(a=>a.classList.toggle("active", a.dataset.nav===page));
-  if(page==="quotes") pageQuotes();
-  else if(page==="assistant") pageAssistant();
-  else if(page==="studio") pageStudio();
-  else pageHome(theme.layout);
-  window.scrollTo({top:0});
-}
-window.addEventListener("hashchange", route);
-
-/* ══════════ Ahhk — assistant engine ══════════ */
-const SYSTEM = `You are Ahhk, a personal assistant living inside a motivational quotes website.
-You blend the directness of a coach with the precision of a strategist. You give short, punchy,
-actionable answers — fuel first, then one concrete next step. You quote great thinkers (women and men)
-when it lands naturally. Never be preachy. Keep replies under 120 words unless asked for depth.`;
-let history = [];
-let brainOnline = false;
-const FALLBACK = [
- "Here's your fuel: “The way to get started is to quit talking and begin doing.” — Walt Disney. Now: pick the single smallest step on your goal and do it in the next 10 minutes.",
- "“It always seems impossible until it's done.” — Nelson Mandela. Write down the one thing you've been avoiding. That's today's rep.",
- "“Every great dream begins with a dreamer.” — Harriet Tubman. Stand up, water, one deep breath — then 25 minutes of focused work. Timer on.",
- "“We suffer more often in imagination than in reality.” — Seneca
+ {t:"The way to get started is to quit talking and begin doing.", a:"Walt Disney"},
+ {t:"Rule No. 1: Never lose money. Rule No. 2: Never forget rule No. 1.", a:"Warren Buffett"},
+ {t:"Price is what you pay. Value is what you get.", a:"Warren Buffett"},
+ {t:"Someone's sitting in the shade today because someone planted a tree a long time ago.", a:"Warren Buffett"},
+ {t:"It takes 20 years to build a reputation and five minutes to ruin it.", a:"Warren Buffett"},
+ {t:"The stock market is a device for transferring money from the impatient to the patient.", a:"Warren Buffett"},
+ {t:"If you don't find a way to make money while you sleep, you will work until you die.", a:"Warren Buffett"},
+ {t:"Your most unhappy customers are your greatest source of learning.", a:"Bill Gates"},
+ {t:"Success is a lousy teacher. It seduces smart people into thinking they can't lose.", a:"Bill Gates"},
+ {t:"It's fine to celebrate success, but it is more important to heed the lessons of failure.", a:"Bill Gates"},
+ {t:"If you are born poor it's not your mistake, but if you die poor it's your mistake.", a:"Bill Gates"},
+ {t:"A brand for a company is like a reputation for a person.", a:"Jeff Bezos"},
+ {t:"If you double the number of experiments you do per year, you're going to double your inventiveness.", a:"Jeff Bezos"},
+ {t:"We see our customers as invited guests to a party, and we are the hosts.", a:"Jeff Bezos"},
+ {t:"If you're not stubborn, you'll give up on experiments too soon. And if you're not flexible, you'll pound your head against the wall.", a:"Jeff Bezos"},
+ {t:"Complaining is not a strategy. You have to work with the world as you find it, not as you would have it be.", a:"Jeff Bezos"},
+ {t:"When something is important enough, you do it even if the odds are not in your favor.", a:"Elon Musk"},
+ {t:"Persistence is very important. You should not give up unless you are forced to give up.", a:"Elon Musk"},
+ {t:"Some people don't like change, but you need to embrace change if the alternative is disaster.", a:"Elon Musk"},
+ {t:"Failure is an option here. If things are not failing, you are not innovating enough.", a:"Elon Musk"},
+ {t:"The first step is to establish that something is possible; then probability will occur.", a:"Elon Musk"},
+ {t:"The best way to predict the future is to create it.", a:"Peter Drucker"},
+ {t:"Efficiency is doing things right; effectiveness is doing the right things.", a:"Peter Drucker"},
+ {t:"The entrepreneur always searches for change, responds to it, and exploits it as an opportunity.", a:"Peter Drucker"},
+ {t:"There is nothing so useless as doing efficiently that which should not be done at all.", a:"Peter Drucker"},
+ {t:"Whatever the mind can conceive and believe, it can achieve.", a:"Napoleon Hill"},
+ {t:"A quitter never wins and a winner never quits.", a:"Napoleon Hill"},
+ {t:"Don't wait. The time will never be just right.", a:"Napoleon Hill"},
+ {t:"Every adversity, every failure, every heartache carries with it the seed of an equal or greater benefit.", a:"Napoleon Hill"},
+ {t:"Strength and growth come only through continuous effort and struggle.", a:"Napoleon Hill"},
+ {t:"Discipline is the bridge between goals and accomplishment.", a:"Jim Rohn"},
+ {t:"You are the average of the five people you spend the most time with.", a:"Jim Rohn"},
+ {t:"Don't wish it was easier, wish you were better.", a:"Jim Rohn"},
+ {t:"Formal education will make you a living; self-education will make you a fortune.", a:"Jim Rohn"},
+ {t:"Motivation is what gets you started. Habit is what keeps you going.", a:"Jim Rohn"},
+ {t:"Your attitude, not your aptitude, will determine your altitude.", a:"Zig Ziglar"},
+ {t:"You don't have to be great to start, but you have to start to be great.", a:"Zig Ziglar"},
+ {t:"People often say that motivation doesn't last. Well, neither does bathing — that's why we recommend it daily.", a:"Zig Ziglar"},
+ {t:"The only impossible journey is the one you never begin.", a:"Tony Robbins"},
+ {t:"It is in your moments of decision that your destiny is shaped.", a:"Tony Robbins"},
+ {t:"Setting goals is the first step in turning the invisible into the visible.", a:"Tony Robbins"},
+ {t:"Successful people do what unsuccessful people are not willing to do.", a:"Brian Tracy"},
+ {t:"The future belongs to the competent. Get good, get better, be the b
