@@ -1,181 +1,62 @@
- visit reshuffles the deck and re-skins the room. Click nothing — just absorb.</p>
-    </div>
-    <div class="grid">
-      ${pool.map(q=>`<div class="card"><p>“${q.t}”</p><span>— ${q.a}</span><div class="tag">${/Davis|Earhart|Angelou|Ginsburg|Yousafzai|Obama|Winfrey|Roosevelt|Beyoncé|Williams|Alcott|Kahlo|Chanel|Parton|Gordon|Rand/.test(q.a)?"her words":"his words"}</div></div>`).join("")}
-    </div>`;
-}
-function pageAssistant(){
-  app.innerHTML = `
-    <div class="page-head">
-      <h1>Ask Ahhk</h1>
-      <p>Your personal assistant — part coach, part strategist. When your local brain (Ollama) is running,
-      Ahhk answers with real AI. Offline, she answers from her built-in fuel bank.</p>
-    </div>
-    <div class="chat-full">
-      <div class="msgs" id="p-msgs"></div>
-      <div class="brain-status" id="p-status"><span class="status-dot off"></span>checking local brain…</div>
-      <div class="composer">
-        <input id="p-input" placeholder="Tell Ahhk what you're working on…" autocomplete="off">
-        <button onclick="send('p')">Send</button>
-      </div>
-    </div>`;
-  bindInput("p"); pingBrain("p"); greet("p");
-}
-
-/* ══════════ ROUTER ══════════ */
-function go(page){ location.hash = "#/"+page; }
-function reroll(){ route(); }
-function route(){
-  const page = (location.hash.replace("#/","") || "home");
-  const theme = rollTheme();
-  buildRiver();
-  document.querySelectorAll("[data-nav]").forEach(a=>a.classList.toggle("active", a.dataset.nav===page));
-  if(page==="quotes") pageQuotes();
-  else if(page==="assistant") pageAssistant();
-  else pageHome(theme.layout);
-  window.scrollTo({top:0});
-}
-window.addEventListener("hashchange", route);
-
-/* ══════════ Ahhk — assistant engine ══════════ */
-const SYSTEM = `You are Ahhk, a personal assistant living inside a motivational quotes website.
-You blend the directness of a coach with the precision of a strategist. You give short, punchy,
-actionable answers — fuel first, then one concrete next step. You quote great thinkers (women and men)
-when it lands naturally. Never be preachy. Keep replies under 120 words unless asked for depth.`;
-let history = [];
-let brainOnline = false;
-const FALLBACK = [
- "Here's your fuel: “The way to get started is to quit talking and begin doing.” — Walt Disney. Now: pick the single smallest step on your goal and do it in the next 10 minutes.",
- "“It always seems impossible until it's done.” — Nelson Mandela. Write down the one thing you've been avoiding. That's today's rep.",
- "“You have within you right now, everything you need.” — Oprah Winfrey. Stand up, water, one deep breath — then 25 minutes of focused work. Timer on.",
- "“We suffer more often in imagination than in reality.” — Seneca. Name the actual worst case — it's usually smaller than the fog around it.",
- "“Don't count the days, make the days count.” — Muhammad Ali. What would make today a win? Say it out loud, then chase only that.",
- "“Real change happens one step at a time.” — Ruth Bader Ginsburg. Brick by brick. Lay one now."
-];
-function toggleWidget(){ document.getElementById("widget").classList.toggle("open"); const w=document.getElementById("widget"); if(w.classList.contains("open")){ pingBrain("w"); if(!document.getElementById("w-msgs").children.length) greet("w"); document.getElementById("w-input").focus(); } }
-document.getElementById("fab").onclick = toggleWidget;
-function greet(ctx){
-  const g = shuffle(QUOTES)[0];
-  addMsg(ctx, "muse", `“${g.t}” — ${g.a}\n\nI'm Ahhk. What are we building today?`);
-}
-function addMsg(ctx, who, text){
-  const box = document.getElementById(ctx+"-msgs");
-  if(!box) return;
-  const div = document.createElement("div");
-  div.className = "msg " + (who==="you" ? "you" : "muse");
-  div.innerHTML = `<span class="who">${who==="you"?"You":"Ahhk"}</span>${text.replace(/</g,"&lt;")}`;
-  box.appendChild(div); box.scrollTop = box.scrollHeight;
-  return div;
-}
-async function pingBrain(ctx){
-  const el = document.getElementById(ctx+"-status");
-  try{
-    const r = await fetch("http://localhost:11434/api/tags", {signal: AbortSignal.timeout(2500)});
-    brainOnline = r.ok;
-  }catch(e){ brainOnline = false; }
-  if(el) el.innerHTML = brainOnline
-    ? `<span class="status-dot on"></span>local brain connected — llama3.1`
-    : `<span class="status-dot off"></span>local brain offline — fuel bank mode`;
-}
-async function send(ctx){
-  const input = document.getElementById(ctx+"-input");
-  const text = input.value.trim(); if(!text) return;
-  input.value = "";
-  addMsg(ctx, "you", text);
-  const thinking = addMsg(ctx, "muse", `<span class="typing">●●●</span>`);
-  history.push({role:"user", content:text});
-  let reply;
-  if(brainOnline){
-    try{
-      const r = await fetch("http://localhost:11434/api/chat", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({model:"llama3.1:8b", stream:false,
-          messages:[{role:"system", content:SYSTEM}, ...history.slice(-10)]})
-      });
-      const j = await r.json();
-      reply = j.message && j.message.content;
-    }catch(e){ brainOnline=false; }
-  }
-  if(!reply) reply = FALLBACK[Math.floor(Math.random()*FALLBACK.length)];
-  history.push({role:"assistant", content:reply});
-  if(thinking) thinking.innerHTML = `<span class="who">Ahhk</span>${reply.replace(/</g,"&lt;").replace(/\n/g,"<br>")}`;
-}
-function bindInput(ctx){
-  const input = document.getElementById(ctx+"-input");
-  if(input) input.addEventListener("keydown", e=>{ if(e.key==="Enter") send(ctx); });
-}
-document.getElementById("w-input").addEventListener("keydown", e=>{ if(e.key==="Enter") send("w"); });
-
-/* footer tagline rotates too */
-const TAGS = ["fuel daily · build always","one brick a day","mind over the noise","the marathon continues","fortune favors the focused"];
-document.getElementById("foot").textContent = TAGS[Math.floor(Math.random()*TAGS.length)];
-
-/* ══════════ PERMANENT MEMORY (survives forever — only prunes chat if storage fills) ══════════ */
-const MEM_KEY = "ahhk_brain_v1";
-function blankMem(){ return {v:1, firstSeen:Date.now(), lastSeen:null, visits:0,
-  dwell:{}, favQuotes:[], chat:[], name:null, themeRolls:0, lastHue:null}; }
-let MEM;
-try{ MEM = JSON.parse(localStorage.getItem(MEM_KEY)) || blankMem(); }
-catch(e){ MEM = blankMem(); }
-function saveMem(){
-  try{ localStorage.setItem(MEM_KEY, JSON.stringify(MEM)); }
-  catch(e){ // storage full → keep everything, trim only oldest chat half
-    MEM.chat = MEM.chat.slice(Math.ceil(MEM.chat.length/2));
-    try{ localStorage.setItem(MEM_KEY, JSON.stringify(MEM)); }catch(e2){}
-  }
-}
-MEM.visits++; MEM.lastSeen = Date.now(); saveMem();
-setInterval(()=>{ MEM.lastSeen = Date.now(); saveMem(); }, 30000);
-function memCount(){ return MEM.favQuotes.length + MEM.chat.length + (MEM.name?1:0) + MEM.visits; }
-/* dwell-based theme learning */
-let hueStart = Date.now();
-function recordDwell(){
-  if(MEM.lastHue === null) return;
-  const sec = Math.round((Date.now() - hueStart)/1000);
-  MEM.dwell[MEM.lastHue] = (MEM.dwell[MEM.lastHue]||0) + sec;
-  hueStart = Date.now();
-}
-function learnedHue(){
-  recordDwell();
-  const keys = Object.keys(MEM.dwell);
-  if(keys.length && Math.random() < .55){ // 55%: bias toward hues you lingered on
-    const top = keys.sort((a,b)=>MEM.dwell[b]-MEM.dwell[a])[0];
-    return (parseInt(top) + Math.floor(Math.random()*50) - 25 + 360) % 360;
-  }
-  return Math.floor(Math.random()*360);
-}
-window.addEventListener("beforeunload", ()=>{ recordDwell(); saveMem(); });
-
-/* ══════════ AHHK CHARACTER ══════════ */
-const FACE = {idle:"🙂", happy:"😄", think:"🤔", yawn:"🥱", sleep:"😴", wave:"👋", love:"😍", wow:"😮", wink:"😉"};
-const charEl = document.getElementById("char");
-const moodEl = document.getElementById("char-mood");
-const bubEl  = document.getElementById("char-bubble");
-let charBusy = false, sleepState = 0; // 0 awake, 1 yawning, 2 sleeping
-let lastActivity = Date.now(), yawnedAt = 0;
-function setChar(face, cls){
-  moodEl.textContent = cls ? face : "";   // mood badge shows state; idle = clean bot
-  charEl.className = "char " + (cls||"");
-}
-function charSay(text, ms){
-  bubEl.textContent = text; bubEl.classList.add("show");
-  clearTimeout(charSay.t);
-  if(ms !== 0) charSay.t = setTimeout(()=>bubEl.classList.remove("show"), ms || 5000);
-}
-/* activity tracking → yawn after 3 min, sleep after 7 min */
-["mousemove","keydown","click","scroll","touchstart"].forEach(ev =>
-  window.addEventListener(ev, ()=>{
-    lastActivity = Date.now();
-    if(sleepState > 0 && !charBusy){
-      const gone = Math.round((Date.now() - yawnedAt)/60000);
-      sleepState = 0;
-      setChar(FACE.wave, "wave");
-      charSay(gone >= 1 ? `Welcome back${MEM.name?" "+MEM.name:""}! You drifted ${gone} min. Fuel's still warm.` : "Hey! I'm awake, I'm awake.", 5000);
-      setTimeout(()=>{ if(!charBusy && sleepState===0) setChar(FACE.idle,""); }, 3000);
-    }
-  }, {passive:true})
-);
-setInterval(()=>{
-  if(charBusy) return;
-  const idle = Date.now() - lastActivity;
-  if(idle > 7*60*1000 && sleepState 
+troke="${shade}" stroke-width="8"/>`;
+  if(a.body === "armored") mid += `<g stroke="${accent}" stroke-width="5" opacity=".8" fill="none"><path d="M174 396L223 422L250 395L277 422L327 396"/><path d="M189 447H218M282 447H311"/></g>`;
+  if(a.outfit === "hoodie") mid += `<path d="M180 365Q250 391 320 365L322 451Q250 476 178 451Z" fill="#57648e" stroke="#28304b" stroke-width="5"/>
+    <path d="M205 360Q250 417 295 360" stroke="${light}" stroke-width="18" fill="none"/>
+    <path d="M240 399V434M260 399V434" stroke="#dce2ff" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <path d="M218 443Q250 455 282 443" stroke="#a8b4d9" stroke-width="3" fill="none"/>`;
+  if(a.outfit === "suit") mid += `<path d="M178 368L225 363L250 412L276 363L322 368L325 462Q251 489 175 462Z" fill="#25324b" stroke="#11182d" stroke-width="5"/>
+    <path d="M225 368L250 415L275 368L261 368L250 381L239 368Z" fill="#f3f7ff"/>
+    <path d="M246 387L254 387L259 423L250 435L241 423Z" fill="${accent}"/>
+    <path d="M205 375L228 411L213 416L244 454M295 375L272 411L287 416L256 454" stroke="#7c8eac" stroke-width="4" fill="none"/>`;
+  if(a.outfit === "tactical") mid += `<path d="M180 379L214 363L250 395L286 363L320 379L314 459H186Z" fill="#34483f" stroke="#1c2a25" stroke-width="5"/>
+    <path d="M206 374L203 456M294 374L297 456M189 418H311" stroke="#95b39b" stroke-width="10" fill="none"/>
+    <rect x="221" y="409" width="58" height="35" rx="5" fill="#202c27" stroke="#708a75" stroke-width="4"/>
+    <rect x="194" y="427" width="23" height="27" rx="4" fill="#263c31"/><rect x="283" y="427" width="23" height="27" rx="4" fill="#263c31"/>`;
+  if(a.outfit === "explorer") mid += `<path d="M178 383Q250 362 322 383L318 462Q250 483 182 462Z" fill="#8d7c5d"/>
+    <path d="M201 377V451M299 377V451M180 427H320" stroke="#d7bd88" stroke-width="9" fill="none"/>
+    <rect x="218" y="419" width="64" height="34" rx="7" fill="#655a4c"/><rect x="236" y="428" width="28" height="17" rx="3" fill="${accent}"/>`;
+  if(a.outfit === "mechanic") mid += `<path d="M184 375Q250 391 316 375L323 457Q250 477 177 457Z" fill="#346f83"/>
+    <path d="M250 381V467" stroke="#b4e7f5" stroke-width="4" stroke-dasharray="9 7" fill="none"/>
+    <rect x="267" y="404" width="40" height="27" rx="5" fill="#203f52" stroke="${accent}" stroke-width="3"/>
+    <circle cx="287" cy="418" r="7" stroke="${accent}" stroke-width="3" fill="none"/>`;
+  if(a.outfit === "none") mid += `<circle cx="250" cy="415" r="36" fill="${shade}" stroke="${light}" stroke-width="6"/>
+    <path d="M250 386L259 408L281 415L259 423L250 446L241 423L219 415L241 408Z" fill="${accent}" filter="${url("glow")}"/>`;
+  if(a.body === "floating") mid += `<path d="M206 484Q250 505 294 484" stroke="${accent}" stroke-width="11" stroke-linecap="round" filter="${url("glow")}" fill="none"/>`;
+  if(a.accessory === "scarf") mid += `<g fill="none"><path d="M199 351Q252 379 304 349" stroke="#ff9c6a" stroke-width="23" stroke-linecap="round"/><path d="M283 355L312 416" stroke="#f77f66" stroke-width="18" stroke-linecap="round"/><path d="M299 405L325 406" stroke="#ffb193" stroke-width="5"/></g>`;
+  /* head assembly */
+  let head = `<rect x="${h.x-16}" y="${h.y+h.h*.34}" width="41" height="92" rx="20" fill="${shade}"/>
+    <rect x="${h.x+h.w-25}" y="${h.y+h.h*.34}" width="41" height="92" rx="20" fill="${shade}"/>
+    <rect x="${h.x-22}" y="${h.y+h.h*.40}" width="43" height="72" rx="21" fill="${url("shell")}" stroke="${shade}" stroke-width="6"/>
+    <rect x="${h.x+h.w-21}" y="${h.y+h.h*.40}" width="43" height="72" rx="21" fill="${url("shell")}" stroke="${shade}" stroke-width="6"/>
+    <path d="M${h.x-16} ${h.y+h.h*.74}H${h.x+13}M${h.x+h.w-13} ${h.y+h.h*.74}H${h.x+h.w+16}" stroke="${accent}" stroke-width="7" opacity=".85" fill="none"/>`;
+  if(a.head === "antenna" || a.accessory === "antenna")
+    head += `<g><path d="M250 ${h.y+7}L253 ${h.y-40}" stroke="${light}" stroke-width="10" stroke-linecap="round" fill="none"/><circle cx="253" cy="${h.y-51}" r="14" fill="${shade}" stroke="${accent}" stroke-width="6" filter="${url("glow")}"/></g>`;
+  head += `<rect x="${h.x}" y="${h.y}" width="${h.w}" height="${h.h}" rx="${h.r}" fill="${url("shell")}" stroke="${shade}" stroke-width="7"/>
+    <rect x="${f.x}" y="${f.y}" width="${f.w}" height="${f.ht}" rx="${f.r}" fill="${url("glass")}" stroke="${shade}" stroke-width="6"/>`;
+  if(a.finish !== "matte")
+    head += `<path d="M${f.x+37} ${f.y+13}Q250 ${f.y-2} ${f.x+f.w-40} ${f.y+13}" stroke="white" stroke-opacity="${a.finish==="metallic"?".62":".30"}" stroke-width="6" stroke-linecap="round" fill="none"/>`;
+  head += `<path d="M${h.x+66} ${h.y+18}Q250 ${h.y-3} ${h.x+h.w-70} ${h.y+17}" stroke="${accent}" stroke-width="4" stroke-linecap="round" opacity=".52" fill="none"/>`;
+  head += eye(202, false) + eye(298, true);
+  const mouth = expression==="curious" ? `<path d="M232 270Q250 284 267 269"/>`
+    : expression==="focused" ? `<path d="M234 271H267"/>`
+    : expression==="sleepy" ? `<path d="M236 272Q250 264 265 272"/>`
+    : expression==="excited" ? `<ellipse cx="250" cy="273" rx="17" ry="19" fill="${accent}" stroke="none"/>`
+    : expression==="mischievous" ? `<path d="M220 266Q259 300 283 257"/>`
+    : `<path d="M223 267Q250 296 278 267"/>`;
+  head += `<g class="avs-mouth" stroke="${accent}" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"${glow ? ` filter="${url("glow")}"` : ""}>${mouth}</g>`;
+  if(expression === "curious") head += `<text x="330" y="214" fill="${accent}" font-size="31" font-weight="bold">?</text>`;
+  if(a.accessory === "glasses") head += `<g stroke="#9cbeec" stroke-width="7" fill="none"><rect x="156" y="${eyeY-33}" width="88" height="71" rx="24"/><rect x="258" y="${eyeY-33}" width="88" height="71" rx="24"/><path d="M244 ${eyeY-8}H258"/></g>`;
+  if(a.accessory === "headphones") head += `<g fill="none"><path d="M${h.x+21} ${h.y+75}Q${h.x+12} ${h.y-48} 250 ${h.y-43}Q${h.x+h.w-5} ${h.y-48} ${h.x+h.w-21} ${h.y+75}" stroke="#232e4a" stroke-width="21"/><path d="M${h.x+33} ${h.y+65}Q250 ${h.y-60} ${h.x+h.w-33} ${h.y+65}" stroke="${accent}" stroke-width="5"/><rect x="${h.x-22}" y="${h.y+75}" width="43" height="88" rx="18" fill="${shade}" stroke="${accent}" stroke-width="5"/><rect x="${h.x+h.w-21}" y="${h.y+75}" width="43" height="88" rx="18" fill="${shade}" stroke="${accent}" stroke-width="5"/></g>`;
+  if(a.accessory === "cap") head += `<g><path d="M${h.x+30} ${h.y+24}Q250 ${h.y-92} ${h.x+h.w-36} ${h.y+24}Z" fill="#292e56" stroke="${accent}" stroke-width="4"/><path d="M${h.x+30} ${h.y+25}Q250 ${h.y-8} ${h.x+h.w-28} ${h.y+25}L${h.x+h.w-65} ${h.y+46}Q250 ${h.y+5} ${h.x+35} ${h.y+41}Z" fill="#44517c"/></g>`;
+  if(a.accessory === "crown") head += `<path d="M180 ${h.y+8}L169 ${h.y-58}L207 ${h.y-34}L249 ${h.y-88}L289 ${h.y-34}L332 ${h.y-58}L320 ${h.y+8}Z" fill="#d4a343" stroke="#ffe2a2" stroke-width="5"/>`;
+  /* motion extras */
+  let extras = "";
+  if(activeMotion === "thinking") extras = `<g fill="${accent}"><circle cx="387" cy="150" r="5"/><circle cx="409" cy="129" r="8"/><circle cx="438" cy="99" r="13" opacity=".7"/></g>`;
+  if(activeMotion === "working") extras = `<g><rect x="345" y="370" width="100" height="72" rx="8" fill="#1a2b4b" stroke="${accent}" stroke-width="4"/><path d="M367 398L353 409L367 420M392 398L405 409L392 420" stroke="${accent}" stroke-width="5" stroke-linecap="round" fill="none"/></g>`;
+  if(activeMotion === "sleeping") extras = `<text x="372" y="142" fill="${accent}" font-size="27" font-weight="bold">zZ</text>`;
+  if(activeMotion === "celebrating") extras = `<g stroke="${accent}" stroke-width="4" fill="none"><path d="M80 195L64 180M77 250H48M420 185L438 160M423 250H452"/></g>`;
+  const bgStops = a.background==="matrix" ? ["#103923","#080e20"] : a.background==="sunset" ? ["#68416e","#18142f"] : ["#223256","#080e20"];
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width||"100%"}" viewBox="0 0 500 600" fill="none" role="img" aria-label="${a.name}, customizable ${a.body} AI robot avatar, ${expression} expression" class="avs-robot avs-motion-${activeMotion}">
+  <style>${AV_MOTION_CSS}</style>
+  <defs>
+    <li

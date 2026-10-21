@@ -1,186 +1,113 @@
-!== 2){
-    sleepState = 2; setChar(FACE.sleep, "sleep"); charSay("💤 💤 💤", 0);
-  }else if(idle > 3*60*1000 && sleepState === 0){
-    sleepState = 1; yawnedAt = Date.now();
-    setChar(FACE.yawn, "yawn");
-    charSay("*yaaaawn*… untouched for 3 minutes. Tap me if you need fuel.", 7000);
-  }
-}, 15000);
-/* wandering + pondering while awake */
-setInterval(()=>{
-  if(charBusy || sleepState > 0) return;
-  charEl.style.left = (3 + Math.random()*32) + "vw";
-  if(Math.random() < .4){
-    charBusy = true; setChar(FACE.think, "think");
-    const thoughts = [
-      `pondering: “${shuffle(QUOTES)[0].t}”`,
-      MEM.favQuotes.length ? `still chewing on that quote you saved…` : `wondering which quote you'll save first…`,
-      MEM.name ? `thinking about ${MEM.name}'s next move…` : `thinking about your next move…`,
-      `${memCount()} memories and counting. Nothing gets lost.`
-    ];
-    charSay("💭 " + thoughts[Math.floor(Math.random()*thoughts.length)], 6000);
-    setTimeout(()=>{ charBusy = false; if(sleepState===0) setChar(FACE.idle,""); }, 6000);
-  }
-}, 45000);
-/* click the character */
-charEl.addEventListener("click", ()=>{
-  lastActivity = Date.now(); sleepState = 0;
-  const r = Math.random();
-  if(r < .45){
-    const q = shuffle(QUOTES)[0];
-    setChar(FACE.happy, "hop"); charSay(`“${q.t}” — ${q.a}`, 7000);
-  }else if(r < .75){
-    const facts = [
-      `I've logged ${MEM.visits} visit${MEM.visits>1?"s":""} from you.`,
-      MEM.favQuotes.length ? `You've saved ${MEM.favQuotes.length} quote${MEM.favQuotes.length>1?"s":""} to my memory.` : `Heart a quote in the Vault and I'll remember it forever.`,
-      Object.keys(MEM.dwell).length ? `I've learned your taste — I bias themes toward colors you linger on.` : `Linger on a theme you like and I'll learn to favor it.`,
-      MEM.name ? `I remember you, ${MEM.name}. Always.` : `Tell me "my name is …" in chat and I'll never forget it.`
-    ];
-    setChar(FACE.wink, "hop"); charSay(facts[Math.floor(Math.random()*facts.length)], 6000);
-  }else{
-    setChar(FACE.wow, "hop"); charSay("You rang?", 2500);
-  }
-  setTimeout(()=>{ if(!charBusy && sleepState===0) setChar(FACE.idle,""); }, 3200);
-});
+nearGradient id="${uid}-shell" x1="0" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="${light}"/><stop offset=".48" stop-color="${a.shellColor}"/><stop offset="1" stop-color="${shade}"/></linearGradient>
+    <linearGradient id="${uid}-glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${avBlend(a.visorColor,"#243765",0.31)}"/><stop offset=".42" stop-color="${a.visorColor}"/><stop offset="1" stop-color="${avBlend(a.visorColor,"#000000",0.46)}"/></linearGradient>
+    <radialGradient id="${uid}-bg" cx="50%" cy="37%" r="77%"><stop offset="0" stop-color="${bgStops[0]}"/><stop offset="1" stop-color="${bgStops[1]}"/></radialGradient>
+    <radialGradient id="${uid}-halo"><stop offset="0" stop-color="${accent}" stop-opacity=".25"/><stop offset="1" stop-color="${accent}" stop-opacity="0"/></radialGradient>
+    <filter id="${uid}-glow" x="-150%" y="-150%" width="400%" height="400%"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="${uid}-shadow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="10"/></filter>
+  </defs>
+  ${scene}
+  <ellipse cx="250" cy="290" rx="246" ry="255" fill="${url("halo")}"/>
+  <ellipse cx="250" cy="554" rx="132" ry="17" fill="#000000" opacity=".6" filter="${url("shadow")}"/>
+  <ellipse cx="250" cy="554" rx="70" ry="8" fill="${accent}" opacity=".22" filter="${url("glow")}"/>
+  <g class="avs-floating-assembly">
+    ${lower}
+    ${mid}
+    <g transform="translate(250 220) scale(${headScale}) translate(-250 -220)"><g class="avs-head-group">${head}</g></g>
+    ${extras}
+  </g>
+</svg>`;
+}
+avatarSVG.n = 0;
 
-/* ══════════ LEARNING UPGRADES (redefine core functions before first paint) ══════════ */
-let firstRoll = true;
-function rollTheme(){ // learned variant: biases hue toward what you dwell on
-  recordDwell();
-  const hue = learnedHue();
-  MEM.lastHue = hue; MEM.themeRolls++; saveMem();
-  const hue2 = (hue + 40 + Math.floor(Math.random()*120)) % 360;
-  const dark = Math.random() > .25;
-  const r = document.documentElement.style;
-  r.setProperty("--hue", hue); r.setProperty("--hue2", hue2);
-  r.setProperty("--angle", Math.floor(Math.random()*360)+"deg");
-  r.setProperty("--gx1", Math.floor(Math.random()*80)+"%");
-  r.setProperty("--gy1", Math.floor(Math.random()*60)+"%");
-  r.setProperty("--gx2", 20+Math.floor(Math.random()*80)+"%");
-  r.setProperty("--gy2", 40+Math.floor(Math.random()*60)+"%");
-  if(dark){
-    r.setProperty("--bg1", `hsl(${hue}, 24%, ${6+Math.random()*6}%)`);
-    r.setProperty("--bg2", `hsl(${hue2}, 26%, ${10+Math.random()*8}%)`);
-    r.setProperty("--ink", `hsl(${hue}, 20%, 94%)`);
-    r.setProperty("--accent", `hsl(${(hue+180)%360}, 75%, 62%)`);
-    r.setProperty("--accent2", `hsl(${hue2}, 65%, 68%)`);
-    r.setProperty("--card-bg", "rgba(255,255,255,.04)");
-    r.setProperty("--card-line", "rgba(255,255,255,.12)");
-  }else{
-    r.setProperty("--bg1", `hsl(${hue}, 40%, 93%)`);
-    r.setProperty("--bg2", `hsl(${hue2}, 38%, 88%)`);
-    r.setProperty("--ink", `hsl(${hue}, 30%, 12%)`);
-    r.setProperty("--accent", `hsl(${(hue+180)%360}, 70%, 40%)`);
-    r.setProperty("--accent2", `hsl(${hue2}, 55%, 35%)`);
-    r.setProperty("--card-bg", "rgba(255,255,255,.5)");
-    r.setProperty("--card-line", "rgba(0,0,0,.12)");
-  }
-  const pair = FONTS[Math.floor(Math.random()*FONTS.length)];
-  loadFonts(pair);
-  r.setProperty("--font-display", pair[0]);
-  r.setProperty("--font-body", pair[1]);
-  if(!firstRoll && !charBusy && sleepState===0){
-    setChar(FACE.happy, "hop");
-    charSay(Math.random()<.5 ? "Ooh — new look." : "Fresh coat of paint. Learned a little more about your taste.", 3500);
-    setTimeout(()=>{ if(!charBusy && sleepState===0) setChar(FACE.idle,""); }, 2500);
-  }
-  firstRoll = false;
-  if(typeof applyCustom === "function") applyCustom(); // keep the bot's glow synced to the new theme
-  return {layout: LAYOUTS[Math.floor(Math.random()*LAYOUTS.length)]};
+/* ══════════ CHARACTER INTEGRATION ══════════ */
+const CHAR_POSE = {
+  "":    {motion:"idle"},
+  think: {motion:"thinking", expr:"curious"},
+  yawn:  {motion:"idle",     expr:"sleepy"},
+  sleep: {motion:"sleeping", expr:"sleepy"},
+  wave:  {motion:"waving",   expr:"happy"},
+  hop:   {motion:"celebrating", expr:"happy"}
+};
+function renderChar(motion, expr){
+  const el = document.getElementById("char-svg");
+  if(el) el.innerHTML = avatarSVG(MEM.avatar, motion || "idle", expr);
 }
-/* vault with save-to-memory hearts */
-let _pool = [];
-function pageQuotes(){
-  _pool = shuffle(QUOTES).slice(0, 18);
-  app.innerHTML = `
-    <div class="page-head">
-      <h1>The Vault</h1>
-      <p>${QUOTES.length} quotes from women and men who built, fought, created and endured.
-      Tap ♡ on any quote — Ahhk remembers it forever.</p>
-    </div>
-    <div class="grid">
-      ${_pool.map((q,i)=>{
-        const saved = MEM.favQuotes.some(f=>f.t===q.t);
-        return `<div class="card"><p>“${q.t}”</p><span>— ${q.a}</span>
-          <button class="heart ${saved?"on":""}" id="h${i}" onclick="fav(${i})">${saved?"♥ saved":"♡ remember"}</button></div>`;
-      }).join("")}
-    </div>`;
-}
-function fav(i){
-  const q = _pool[i]; if(!q) return;
-  const idx = MEM.favQuotes.findIndex(f=>f.t===q.t);
-  const btn = document.getElementById("h"+i);
-  if(idx >= 0){ MEM.favQuotes.splice(idx,1); if(btn){btn.classList.remove("on"); btn.textContent="♡ remember";} }
-  else{
-    MEM.favQuotes.push({t:q.t, a:q.a, at:Date.now()});
-    if(btn){btn.classList.add("on"); btn.textContent="♥ saved";}
-    setChar(FACE.love, "hop"); charSay("Saved. That's in my permanent memory now.", 3500);
-    setTimeout(()=>{ if(!charBusy && sleepState===0) setChar(FACE.idle,""); }, 2500);
-  }
+function applyAvatar(){
+  MEM.avatar = validAvatar(MEM.avatar);
+  if(!Array.isArray(MEM.avatarLib)) MEM.avatarLib = [];
+  charEl.title = MEM.avatar.name || "Ahhk";
+  const nm = document.getElementById("cp-name");
+  if(nm && document.activeElement !== nm) nm.value = MEM.avatar.name;
+  const csz = {s:"78px", m:"100px", l:"128px"}[(MEM.custom && MEM.custom.size) || "m"] || "100px";
+  const spd = {calm:"7s", normal:"5.2s", hyper:"3.4s"}[(MEM.custom && MEM.custom.energy) || "normal"] || "5.2s";
+  const r = document.documentElement;
+  r.style.setProperty("--csz", csz); r.style.setProperty("--bobspeed", spd);
+  renderChar("idle");
   saveMem();
 }
-/* personalized greeting */
-function greet(ctx){
-  const g = shuffle(QUOTES)[0];
-  const intro = MEM.visits <= 1
-    ? "I'm Ahhk. I live here, I learn your taste, and I never forget. What are we building today?"
-    : `Visit #${MEM.visits}${MEM.name ? ", "+MEM.name : ""} — good to see you again. What are we building today?`;
-  addMsg(ctx, "muse", `“${g.t}” — ${g.a}\n\n${intro}`);
-}
-/* chat: thinking face + permanent chat memory + name learning */
-async function send(ctx){
-  const input = document.getElementById(ctx+"-input");
-  const text = input.value.trim(); if(!text) return;
-  input.value = ""; lastActivity = Date.now();
-  addMsg(ctx, "you", text);
-  const thinking = addMsg(ctx, "muse", `<span class="typing">●●●</span>`);
-  charBusy = true; setChar(FACE.think, "think"); charSay("💭 thinking…", 0);
-  const nm = text.match(/(?:call me|my name is)\s+([A-Za-z]{2,20})/i);
-  if(nm){ MEM.name = nm[1][0].toUpperCase()+nm[1].slice(1); saveMem(); }
-  history.push({role:"user", content:text});
-  let reply;
-  if(brainOnline){
-    try{
-      const r = await fetch("http://localhost:11434/api/chat", {
-        method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({model:"llama3.1:8b", stream:false,
-          messages:[{role:"system", content:SYSTEM}, ...history.slice(-10)]})
-      });
-      const j = await r.json();
-      reply = j.message && j.message.content;
-    }catch(e){ brainOnline=false; }
-  }
-  if(!reply){
-    reply = FALLBACK[Math.floor(Math.random()*FALLBACK.length)];
-    if(nm) reply = `Locked in, ${MEM.name} — I'll remember that forever. ` + reply;
-    else if(MEM.name && Math.random()<.3) reply = MEM.name + ", " + reply[0].toLowerCase() + reply.slice(1);
-  }else if(nm && !new RegExp(MEM.name,"i").test(reply)){
-    reply = `Got it, ${MEM.name} — stored in permanent memory.\n\n` + reply;
-  }
-  history.push({role:"assistant", content:reply});
-  MEM.chat.push({t:Date.now(), you:text, ahhk:reply}); saveMem();
-  if(thinking) thinking.innerHTML = `<span class="who">Ahhk</span>${reply.replace(/</g,"&lt;").replace(/\n/g,"<br>")}`;
-  bubEl.classList.remove("show"); charBusy = false;
-  if(sleepState===0){ setChar(FACE.happy, "hop"); setTimeout(()=>{ if(!charBusy && sleepState===0) setChar(FACE.idle,""); }, 2200); }
-}
-/* brain status also shows memory count */
-async function pingBrain(ctx){
-  const el = document.getElementById(ctx+"-status");
-  try{
-    const r = await fetch("http://localhost:11434/api/tags", {signal: AbortSignal.timeout(2500)});
-    brainOnline = r.ok;
-  }catch(e){ brainOnline = false; }
-  if(el) el.innerHTML = (brainOnline
-    ? `<span class="status-dot on"></span>local brain connected — llama3.1`
-    : `<span class="status-dot off"></span>local brain offline — fuel bank mode`)
-    + ` &nbsp;·&nbsp; 🧠 ${memCount()} memories held`;
+function toggleCustom(){ document.getElementById("custom-panel").classList.toggle("open"); }
+function exportIcon(){
+  const a = MEM.avatar;
+  const svg = avatarSVG(Object.assign({}, a, {background:"transparent"}), "idle", null, 500);
+  const url = URL.createObjectURL(new Blob([svg], {type:"image/svg+xml"}));
+  const im = new Image();
+  im.onload = () => {
+    const c = document.createElement("canvas"); c.width = c.height = 256;
+    const x = c.getContext("2d");
+    const r = 56;
+    x.beginPath();
+    x.moveTo(r,0); x.arcTo(256,0,256,256,r); x.arcTo(256,256,0,256,r); x.arcTo(0,256,0,0,r); x.arcTo(0,0,256,0,r);
+    x.closePath(); x.fillStyle = "#101018"; x.fill();
+    const g = x.createRadialGradient(128,118,10,128,128,150);
+    g.addColorStop(0, a.accentColor + "66"); g.addColorStop(1, "rgba(0,0,0,0)");
+    x.fillStyle = g; x.fillRect(0,0,256,256);
+    x.drawImage(im, 21, 14, 214, 257*214/257*1); x.drawImage(im, 21, 10, 214, 257);
+    c.toBlob(b => {
+      const d = document.createElement("a");
+      d.href = URL.createObjectURL(b); d.download = "ahhk-icon.png"; d.click();
+      charSay("Icon exported — matches me exactly. 💾", 3200);
+    }, "image/png");
+    URL.revokeObjectURL(url);
+  };
+  im.src = url;
 }
 
-/* ══════════ PHOTO BACKDROP ENGINE ══════════ */
-const PHOTO_POOLS = {
-  nature: [ // forests, mountains, oceans — for dreams, courage, growth quotes
-    "1441974231531-c6227db76b6e","1470071459604-3b5ec3a7fe05","1506905925346-21bda4d32df4",
-    "1518495973542-4542c06a5843","1447752875215-b2761acb3c5d","1507525428034-b723cf961d3e",
-    "1472214103451-9374bd1c798e","1493246507139-91e8fad9978e"
-  ],
-  city: [ // s
+/* ══════════ AVATAR STUDIO PAGE ══════════ */
+let studioTab = "looks";
+function avBtn(list, key, cur){
+  return list.map(([v,l,s]) => `<button type="button" class="avs-option${cur===v?" active":""}" data-k="${key}" data-v="${v}"><span class="avs-symbol">${s}</span><span>${l}</span></button>`).join("");
+}
+function swatches(list, key, cur){
+  return list.map(c => `<button type="button" class="avs-swatch${cur===c?" active":""}" style="background:${c}" data-k="${key}" data-v="${c}" aria-label="${c}"></button>`).join("");
+}
+function studioOptions(){
+  const a = MEM.avatar, t = studioTab;
+  if(t === "looks") return `<div class="avs-section"><h3>Head shape</h3><div class="avs-option-grid">${avBtn(AV_HEADS,"head",a.head)}</div></div>
+    <div class="avs-section"><h3>Face expression</h3><div class="avs-option-grid">${avBtn(AV_EXPR,"expression",a.expression)}</div></div>
+    <div class="avs-section"><h3>Eye style</h3><div class="avs-option-grid">${avBtn(AV_EYES,"eyes",a.eyes)}</div></div>
+    <div class="avs-section"><h3>Eye size <b>${a.eyeSize}%</b></h3><input type="range" class="avs-range" min="75" max="125" step="5" value="${a.eyeSize}" data-k="eyeSize"></div>
+    <div class="avs-section"><h3>Head size <b>${a.headSize}%</b></h3><input type="range" class="avs-range" min="75" max="125" step="5" value="${a.headSize}" data-k="headSize"></div>
+    <div class="avs-section"><h3>Body type</h3><div class="avs-option-grid">${avBtn(AV_BODIES,"body",a.body)}</div></div>`;
+  if(t === "outfits") return `<div class="avs-section"><h3>Outfit</h3><div class="avs-option-grid">${avBtn(AV_OUTFITS,"outfit",a.outfit)}</div></div>
+    <div class="avs-section"><h3>Idle motion</h3><div class="avs-option-grid">${avBtn(AV_MOTIONS,"motion",a.motion)}</div></div>`;
+  if(t === "accessories") return `<div class="avs-section"><h3>Accessory</h3><div class="avs-option-grid">${avBtn(AV_ACC,"accessory",a.accessory)}</div></div>
+    <div class="avs-section"><h3>Finish</h3><div class="avs-option-grid">${avBtn(AV_FINISH,"finish",a.finish)}</div></div>`;
+  if(t === "colors") return `<div class="avs-section"><h3>Shell color</h3><div class="avs-swatch-grid">${swatches(AV_SHELLS,"shellColor",a.shellColor)}</div>
+    <label class="avs-color-row"><span>Custom shell</span><input type="color" class="avs-color" value="${a.shellColor}" data-k="shellColor"></label></div>
+    <div class="avs-section"><h3>Accent glow</h3><div class="avs-swatch-grid">${swatches(AV_ACCENTS,"accentColor",a.accentColor)}</div>
+    <label class="avs-color-row"><span>Custom accent</span><input type="color" class="avs-color" value="${a.accentColor}" data-k="accentColor"></label>
+    <button type="button" class="avs-btn secondary" id="avs-match-page">🎨 Match this page's theme</button></div>
+    <div class="avs-section"><h3>Visor tint</h3><div class="avs-swatch-grid">${swatches(["#080f24","#140b26","#06231f","#230b13","#10261b","#231d08","#0a1a2b","#1d0b26"],"visorColor",a.visorColor)}</div></div>`;
+  if(t === "personality") return `<div class="avs-section"><h3>Personality</h3><div class="avs-option-grid">${avBtn(AV_PERS,"personality",a.personality)}</div>
+    <p class="avs-hint">${AV_PERS_NOTE[a.personality]||""}</p></div>`;
+  if(t === "background") return `<div class="avs-section"><h3>Preview scene (export background)</h3><div class="avs-option-grid">${avBtn(AV_BGS,"background",a.background)}</div>
+    <p class="avs-hint">The on-page character always floats free — scenes apply to exports.</p></div>`;
+  /* library */
+  const lib = MEM.avatarLib || [];
+  const cards = lib.map((c,i) => `<div class="avs-library-card${c.name===a.name&&JSON.stringify(c)===JSON.stringify(a)?" active":""}">
+      <div class="avs-thumb">${avatarSVG(c,"idle",null,120)}</div>
+      <div class="avs-lib-name">${c.name}</div>
+      <div class="avs-lib-actions"><button type="button" data-load="${i}">Load</button><button type="button" data-del="${i}">✕</button></div>
+    </div>`).join("");
+  return `<div class="avs-section"><h3>Saved characters (${lib.length}/20)</h3>
+    ${lib.length ? `<div class="avs-libra
