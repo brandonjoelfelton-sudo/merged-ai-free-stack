@@ -94,7 +94,7 @@ function pageAssistant(){
     <div class="page-head">
       <h1>Ask Ahhk</h1>
       <p>Your personal assistant — part coach, part strategist. When your local brain (Ollama) is running,
-      Ahhk answers with real AI. Offline, she answers from her built-in fuel bank.</p>
+      Ahhk answers with real AI. Offline, he answers from his built-in fuel bank.</p>
     </div>
     <div class="chat-full">
       <div class="msgs" id="p-msgs"></div>
