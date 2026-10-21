@@ -20,7 +20,7 @@ function rollTheme(){
     r.setProperty("--accent", `hsl(${(hue+180)%360}, 75%, 62%)`);
     r.setProperty("--accent2", `hsl(${hue2}, 65%, 68%)`);
     r.setProperty("--card-bg", "rgba(255,255,255,.04)");
-    r.setProperty("--card-line", "rgba(255,255,255,.12)");
+    r.setProperty("--card-line", "rgba(255,255,255,.12%)");
   }else{
     r.setProperty("--bg1", `hsl(${hue}, 40%, 93%)`);
     r.setProperty("--bg2", `hsl(${hue2}, 38%, 88%)`);
@@ -134,4 +134,4 @@ const FALLBACK = [
  "Here's your fuel: “The way to get started is to quit talking and begin doing.” — Walt Disney. Now: pick the single smallest step on your goal and do it in the next 10 minutes.",
  "“It always seems impossible until it's done.” — Nelson Mandela. Write down the one thing you've been avoiding. That's today's rep.",
  "“Every great dream begins with a dreamer.” — Harriet Tubman. Stand up, water, one deep breath — then 25 minutes of focused work. Timer on.",
- "“We suffer more often in imaginatio
+ "“We suffer more often in imagination than in reality.” — Seneca
