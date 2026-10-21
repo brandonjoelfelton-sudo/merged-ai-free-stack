@@ -1,147 +1,103 @@
-tes from women & men ══════════ */
-const QUOTES = [
- {t:"I am no longer accepting the things I cannot change. I am changing the things I cannot accept.", a:"Angela Davis"},
- {t:"The most difficult thing is the decision to act; the rest is merely tenacity.", a:"Amelia Earhart"},
- {t:"You may encounter many defeats, but you must not be defeated.", a:"Maya Angelou"},
- {t:"The most effective way to do it, is to do it.", a:"Amelia Earhart"},
- {t:"You can't use up creativity. The more you use, the more you have.", a:"Maya Angelou"},
- {t:"Real change, enduring change, happens one step at a time.", a:"Ruth Bader Ginsburg"},
- {t:"Fight for the things that you care about, but do it in a way that will lead others to join you.", a:"Ruth Bader Ginsburg"},
- {t:"One child, one teacher, one book, one pen can change the world.", a:"Malala Yousafzai"},
- {t:"We realize the importance of our voices only when we are silenced.", a:"Malala Yousafzai"},
- {t:"When they go low, we go high.", a:"Michelle Obama"},
- {t:"Success isn't about how much money you make; it's about the difference you make in people's lives.", a:"Michelle Obama"},
- {t:"You have within you right now, everything you need to deal with whatever the world can throw at you.", a:"Oprah Winfrey"},
- {t:"Turn your wounds into wisdom.", a:"Oprah Winfrey"},
- {t:"No one can make you feel inferior without your consent.", a:"Eleanor Roosevelt"},
- {t:"The future belongs to those who believe in the beauty of their dreams.", a:"Eleanor Roosevelt"},
- {t:"I don't like to gamble, but if there's one thing I'm willing to bet on, it's myself.", a:"Beyoncé"},
- {t:"Every champion was once a contender who refused to give up.", a:"Serena Williams"},
- {t:"I really think a champion is defined not by their wins but by how they can recover when they fall.", a:"Serena Williams"},
- {t:"I am not afraid of storms, for I am learning how to sail my ship.", a:"Louisa May Alcott"},
- {t:"Feet, what do I need you for when I have wings to fly?", a:"Frida Kahlo"},
- {t:"In order to be irreplaceable one must always be different.", a:"Coco Chanel"},
- {t:"The most courageous act is still to think for yourself. Aloud.", a:"Coco Chanel"},
- {t:"Darkness cannot drive out darkness; only light can do that.", a:"Martin Luther King Jr."},
- {t:"The time is always right to do what is right.", a:"Martin Luther King Jr."},
- {t:"It always seems impossible until it's done.", a:"Nelson Mandela"},
- {t:"I never lose. I either win or learn.", a:"Nelson Mandela"},
- {t:"The most important thing is to try and inspire people so that they can be great in whatever they want to do.", a:"Kobe Bryant"},
- {t:"Everything negative — pressure, challenges — is all an opportunity for me to rise.", a:"Kobe Bryant"},
- {t:"You have power over your mind — not outside events. Realize this, and you will find strength.", a:"Marcus Aurelius"},
- {t:"The impediment to action advances action. What stands in the way becomes the way.", a:"Marcus Aurelius"},
- {t:"Success is not final, failure is not fatal: it is the courage to continue that counts.", a:"Winston Churchill"},
- {t:"If you're going through hell, keep going.", a:"Winston Churchill"},
- {t:"Float like a butterfly, sting like a bee. The hands can't hit what the eyes can't see.", a:"Muhammad Ali"},
- {t:"Don't count the days, make the days count.", a:"Muhammad Ali"},
- {t:"The successful warrior is the average man, with laser-like focus.", a:"Bruce Lee"},
- {t:"Do not pray for an easy life; pray for the strength to endure a difficult one.", a:"Bruce Lee"},
- {t:"The highest human act is to inspire.", a:"Nipsey Hussle"},
- {t:"Instead of trying to build a brick wall, lay a brick every day. Eventually you'll look up and you'll have a brick wall.", a:"Nipsey Hussle"},
- {t:"Your time is limited, so don't waste it living someone else's life.", a:"Steve Jobs"},
- {t:"The people who are crazy enough to think they can change the world are the ones who do.", a:"Steve Jobs"},
- {t:"Whether you think you can or you think you can't, you're right.", a:"Henry Ford"},
- {t:"It does not matter how slowly you go as long as you do not stop.", a:"Confucius"},
- {t:"We suffer more often in imagination than in reality.", a:"Seneca"},
- {t:"A winner is a dreamer who never gives up.", a:"Nelson Mandela"},
- {t:"The question isn't who is going to let me; it's who is going to stop me.", a:"Ayn Rand"},
- {t:"Do one thing every day that scares you.", a:"Eleanor Roosevelt"},
- {t:"Courage is like a muscle. We strengthen it by use.", a:"Ruth Gordon"},
- {t:"If you don't like the road you're walking, start paving another one.", a:"Dolly Parton"},
- {t:"You'll never do a whole lot unless you're brave enough to try.", a:"Dolly Parton"},
- {t:"The way to get started is to quit talking and begin doing.", a:"Walt Disney"}
-];
-const shuffle = a => a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(p=>p[1]);
+ype .45s ease-in-out infinite alternate}
+.avs-motion-working .avs-right-arm{animation:avs-arm-type .55s ease-in-out infinite alternate-reverse}
+.avs-motion-talking .avs-mouth{animation:avs-mouth-talk .3s ease-in-out infinite alternate}
+.avs-motion-talking .avs-head-group{animation:avs-head-talk .55s ease-in-out infinite alternate}
+.avs-motion-dancing .avs-floating-assembly{animation:avs-body-dance 1.1s ease-in-out infinite alternate}
+.avs-motion-celebrating .avs-left-arm{animation:avs-arm-wave .5s ease-in-out infinite alternate}
+.avs-motion-celebrating .avs-right-arm{animation:avs-arm-wave .5s ease-in-out infinite alternate-reverse}
+.avs-motion-sleeping .avs-floating-assembly{animation:avs-float 7s ease-in-out infinite}
+@keyframes avs-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes avs-head-idle{0%,100%{transform:rotate(0deg)}48%{transform:rotate(-1.4deg)}}
+@keyframes avs-blink{0%,43%,47%,89%,93%,100%{transform:scaleY(1)}45%,91%{transform:scaleY(.12)}}
+@keyframes avs-arm-wave{from{transform:rotate(-10deg)}to{transform:rotate(-38deg)}}
+@keyframes avs-head-think{from{transform:rotate(-7deg)}to{transform:rotate(6deg)}}
+@keyframes avs-arm-type{from{transform:rotate(-7deg)}to{transform:rotate(9deg)}}
+@keyframes avs-head-talk{from{transform:translateY(-2px)}to{transform:translateY(3px)}}
+@keyframes avs-mouth-talk{from{transform:scaleY(.75)}to{transform:scaleY(1.4)}}
+@keyframes avs-body-dance{from{transform:translateY(-15px) rotate(-6deg)}to{transform:translateY(0) rotate(6deg)}}
+@media (prefers-reduced-motion:reduce){.avs-head-group,.avs-floating-assembly,.avs-eye-shape,.avs-mouth,.avs-left-arm,.avs-right-arm{animation:none!important}}
+`;
 
-/* ══════════ RANDOM THEME ENGINE ══════════ */
-const FONTS = [
- ["'Playfair Display',serif","'Inter',sans-serif"],
- ["'Cormorant Garamond',serif","'Space Grotesk',sans-serif"],
- ["'DM Serif Display',serif","'DM Sans',sans-serif"],
- ["'Sora',sans-serif","'Sora',sans-serif"],
- ["'Libre Baskerville',serif","'Work Sans',sans-serif"],
- ["'Bebas Neue',sans-serif","'Inter',sans-serif"]
-];
-const LAYOUTS = ["left","center","split"];
-function rollTheme(){
-  const hue = Math.floor(Math.random()*360);
-  const hue2 = (hue + 40 + Math.floor(Math.random()*120)) % 360;
-  const dark = Math.random() > .25; // mostly dark, sometimes light
-  const r = document.documentElement.style;
-  r.setProperty("--hue", hue); r.setProperty("--hue2", hue2);
-  r.setProperty("--angle", Math.floor(Math.random()*360)+"deg");
-  r.setProperty("--gx1", Math.floor(Math.random()*80)+"%");
-  r.setProperty("--gy1", Math.floor(Math.random()*60)+"%");
-  r.setProperty("--gx2", 20+Math.floor(Math.random()*80)+"%");
-  r.setProperty("--gy2", 40+Math.floor(Math.random()*60)+"%");
-  if(dark){
-    r.setProperty("--bg1", `hsl(${hue}, 24%, ${6+Math.random()*6}%)`);
-    r.setProperty("--bg2", `hsl(${hue2}, 26%, ${10+Math.random()*8}%)`);
-    r.setProperty("--ink", `hsl(${hue}, 20%, 94%)`);
-    r.setProperty("--accent", `hsl(${(hue+180)%360}, 75%, 62%)`);
-    r.setProperty("--accent2", `hsl(${hue2}, 65%, 68%)`);
-    r.setProperty("--card-bg", "rgba(255,255,255,.04)");
-    r.setProperty("--card-line", "rgba(255,255,255,.12)");
+/* Builds the full SVG markup for avatar config `a`. motion/expression overrides = live assistant state. */
+function avatarSVG(a, motion, exprOv, width){
+  const uid = "av" + (++avatarSVG.n);
+  const url = s => `url(#${uid}-${s})`;
+  const expression = exprOv || a.expression;
+  const activeMotion = motion || a.motion || "idle";
+  const accent = a.accentColor;
+  const light = avBlend(a.shellColor, "#ffffff", a.finish==="metallic" ? 0.72 : 0.38);
+  const shade = avBlend(a.shellColor, "#04091b", a.finish==="matte" ? 0.16 : 0.36);
+  const HG = {classic:[94,118,312,215,82], square:[102,117,296,221,38], wide:[65,142,370,181,67],
+    oval:[112,102,276,244,132], mini:[132,140,236,174,75], antenna:[94,118,312,215,82]};
+  const gg = HG[a.head] || HG.classic;
+  const h = {x:gg[0], y:gg[1], w:gg[2], h:gg[3], r:gg[4]};
+  const f = {x:h.x+20, y:h.y+26, w:h.w-40, ht:h.h-46, r:Math.max(26, h.r-22)};
+  const eyeY = h.y + h.h*0.51;
+  const headScale = a.headSize/100, eyeScale = a.eyeSize/100;
+  const glow = a.eyes === "glow";
+  function eye(x, right){
+    const wink = expression==="wink" && right;
+    const sw = a.eyes==="thin" ? 7 : 12;
+    const P = `fill="none" stroke="${accent}" stroke-width="${sw}" stroke-linecap="round"`;
+    let shape;
+    if(expression==="love") shape = `<path d="M 0 12 C -31 -6 -26 -24 -10 -24 C -3 -24 0 -17 0 -17 C 10 -30 31 -19 23 -3 C 17 9 0 22 0 22 Z" fill="${accent}"/>`;
+    else if(expression==="excited" || expression==="happy") shape = `<path d="M -25 14 Q 0 -27 25 14" ${P}/>`;
+    else if(expression==="sleepy") shape = `<path d="M -25 0 Q 0 12 25 0" ${P}/>`;
+    else if(expression==="focused" || expression==="mischievous") shape = `<path d="${right ? "M -21 -13 L 23 2" : "M -23 2 L 21 -13"}" ${P}/>`;
+    else if(wink) shape = `<path d="M -23 8 Q 0 -17 23 8" ${P}/>`;
+    else if(a.eyes==="pixel") shape = `<rect x="-17" y="-24" width="34" height="52" rx="7" fill="${accent}"/>`;
+    else if(a.eyes==="round") shape = `<circle r="19" fill="${accent}"/>`;
+    else if(a.eyes==="thin") shape = `<rect x="-10" y="-26" width="20" height="53" rx="10" fill="${accent}"/>`;
+    else shape = `<rect x="-17" y="-30" width="34" height="61" rx="17" fill="${accent}"/>`;
+    return `<g transform="translate(${x} ${eyeY}) scale(${eyeScale})"${glow ? ` filter="${url("glow")}"` : ""}><g class="avs-eye-shape">${shape}</g></g>`;
+  }
+  /* scenes */
+  let scene = "";
+  if(a.background !== "transparent") scene += `<rect width="500" height="600" rx="30" fill="${url("bg")}"/>`;
+  if(a.background === "matrix"){
+    let t = "";
+    for(let i=0;i<18;i++) t += `<text x="${12+i*28}" y="${-18+((i*79)%170)}" writing-mode="tb">${i%3===0?"BUILD CREATE EVOLVE":i%3===1?"MAKE IT HAPPEN":"STAY CURIOUS"}</text>`;
+    scene += `<g fill="#41ff8b" opacity=".2" font-family="monospace" font-size="12">${t}</g>`;
+  }
+  if(a.background === "cyberpunk"){
+    let r = "";
+    for(let i=0;i<11;i++) r += `<rect x="${i*49-8}" y="${285+((i*67)%145)}" width="38" height="310"/>`;
+    scene += `<g fill="#6e3db9" opacity=".45">${r}<path d="M0 507H500" stroke="#ff47d4" stroke-width="2"/></g>`;
+  }
+  if(a.background === "space"){
+    let c = "";
+    for(let i=0;i<44;i++) c += `<circle cx="${(i*137+23)%500}" cy="${(i*83+37)%540}" r="${i%5===0?2.3:1}" opacity="${i%3===0?".8":".4"}"/>`;
+    scene += `<g fill="#dbeaff">${c}</g>`;
+  }
+  if(a.background === "sunset") scene += `<circle cx="370" cy="190" r="84" fill="#ffb076" opacity=".55"/><path d="M0 465L95 370L185 454L320 340L500 485V600H0Z" fill="#53345f" opacity=".85"/>`;
+  if(a.background === "office") scene += `<g stroke="#91b9ff" stroke-opacity=".16" stroke-width="4"><path d="M45 0V415M250 0V410M455 0V415M0 290H500"/><path d="M0 462H500" stroke-width="15"/></g>`;
+  /* lower body / arms */
+  let lower = "";
+  if(a.body === "spider"){
+    lower = `<g stroke="${shade}" stroke-width="17" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M193 432L123 453L72 520M200 454L130 497L107 555M189 413L102 410L43 454M307 432L377 453L428 520M300 454L370 497L393 555M311 413L398 410L457 454"/>
+      <g stroke="${accent}" stroke-width="6"><path d="M72 520L61 536M107 555L95 570M43 454L32 471M428 520L439 536M393 555L405 570M457 454L468 471"/></g></g>`;
   }else{
-    r.setProperty("--bg1", `hsl(${hue}, 40%, 93%)`);
-    r.setProperty("--bg2", `hsl(${hue2}, 38%, 88%)`);
-    r.setProperty("--ink", `hsl(${hue}, 30%, 12%)`);
-    r.setProperty("--accent", `hsl(${(hue+180)%360}, 70%, 40%)`);
-    r.setProperty("--accent2", `hsl(${hue2}, 55%, 35%)`);
-    r.setProperty("--card-bg", "rgba(255,255,255,.5)");
-    r.setProperty("--card-line", "rgba(0,0,0,.12)");
+    if(a.body !== "floating"){
+      lower += `<g><path d="M209 462L194 526Q190 545 211 547L235 548Q249 542 248 526L246 466" fill="${url("shell")}" stroke="${shade}" stroke-width="7"/>
+        <path d="M292 462L306 526Q310 545 289 547L265 548Q251 542 252 526L254 466" fill="${url("shell")}" stroke="${shade}" stroke-width="7"/>
+        <rect x="181" y="522" width="70" height="35" rx="17" fill="${url("shell")}" stroke="${shade}" stroke-width="6"/>
+        <rect x="249" y="522" width="70" height="35" rx="17" fill="${url("shell")}" stroke="${shade}" stroke-width="6"/>
+        <path d="M197 547H240M262 547H304" stroke="${accent}" stroke-width="5" opacity=".8" stroke-linecap="round"/></g>`;
+    }
+    lower += `<g class="avs-left-arm"><path d="M184 378L136 408L123 469" stroke="${shade}" stroke-width="30" stroke-linecap="round"/>
+      <path d="M183 378L143 409" stroke="${url("shell")}" stroke-width="33" stroke-linecap="round"/>
+      <rect x="100" y="442" width="46" height="63" rx="22" fill="${url("shell")}" stroke="${shade}" stroke-width="6"/>
+      <circle cx="124" cy="508" r="22" fill="${shade}"/>
+      <path d="M112 506L104 489M125 503L125 484M137 507L145 491" stroke="${accent}" stroke-width="5" stroke-linecap="round"/></g>
+    <g class="avs-right-arm"><path d="M317 378L361 409L372 469" stroke="${shade}" stroke-width="30" stroke-linecap="round"/>
+      <path d="M317 378L357 409" stroke="${url("shell")}" stroke-width="33" stroke-linecap="round"/>
+      <rect x="352" y="441" width="46" height="63" rx="22" fill="${url("shell")}" stroke="${shade}" stroke-width="6"/>
+      <circle cx="375" cy="504" r="23" fill="${shade}"/><circle cx="375" cy="505" r="10" stroke="${accent}" stroke-width="4" fill="none"/></g>`;
   }
-  const pair = FONTS[Math.floor(Math.random()*FONTS.length)];
-  loadFonts(pair);
-  r.setProperty("--font-display", pair[0]);
-  r.setProperty("--font-body", pair[1]);
-  return {layout: LAYOUTS[Math.floor(Math.random()*LAYOUTS.length)]};
-}
-function loadFonts(pair){
-  const fams = [...new Set(pair.map(f=>f.split(",")[0].replace(/'/g,"").trim()))];
-  const q = fams.map(f=>"family="+f.replace(/ /g,"+")+":ital,wght@0,400;0,700;1,400").join("&");
-  let link = document.getElementById("gfonts");
-  if(!link){ link=document.createElement("link"); link.id="gfonts"; link.rel="stylesheet"; document.head.appendChild(link); }
-  link.href = "https://fonts.googleapis.com/css2?"+q+"&display=swap";
-}
-
-/* ══════════ QUOTE RIVER (background) ══════════ */
-function buildRiver(){
-  const river = document.getElementById("river");
-  river.innerHTML = "";
-  const rows = 7, pool = shuffle(QUOTES);
-  for(let i=0;i<rows;i++){
-    const row = document.createElement("div");
-    row.className = "river-row";
-    const chunk = pool.slice(i*5, i*5+5).map(q=>`<span>“${q.t}” <b>— ${q.a}</b></span>`).join("");
-    row.innerHTML = chunk + chunk; // seamless loop
-    const dur = 60 + Math.random()*80;
-    row.style.animation = `${i%2? "driftR":"driftL"} ${dur}s linear infinite`;
-    row.style.transform = `translateY(${i*14}vh)`;
-    river.appendChild(row);
-  }
-}
-
-/* ══════════ PAGES ══════════ */
-const app = document.getElementById("app");
-function pageHome(layout){
-  const q = QUOTES[Math.floor(Math.random()*QUOTES.length)];
-  app.innerHTML = `
-    <section class="hero ${layout}">
-      <div class="kicker">Daily fuel · fresh theme every visit</div>
-      <blockquote>“${q.t}”</blockquote>
-      <cite>— ${q.a}</cite>
-      <div class="btn-row">
-        <button class="btn solid" onclick="go('quotes')">Open the Vault</button>
-        <button class="btn" onclick="reroll()">New Theme + Quote</button>
-        <button class="btn" onclick="go('assistant')">Ask Ahhk</button>
-      </div>
-    </section>`;
-}
-function pageQuotes(){
-  const pool = shuffle(QUOTES).slice(0, 18);
-  app.innerHTML = `
-    <div class="page-head">
-      <h1>The Vault</h1>
-      <p>${QUOTES.length} quotes from women and men who built, fought, created and endured.
-      Every
+  /* torso + outfits */
+  const torso = a.body==="armored" ? "M187 359L316 359L353 403L338 476L162 476L147 403Z"
+    : a.body==="compact" ? "M191 360Q250 335 309 360L322 421Q315 455 250 461Q185 455 178 421Z"
+    : a.body==="floating" ? "M197 363Q250 330 303 363Q342 396 321 460Q250 509 179 460Q158 396 197 363Z"
+    : "M190 357Q250 334 310 357Q339 375 328 459Q250 488 172 459Q161 375 190 357Z";
+  let mid = `<path d="${torso}" fill="${url("shell")}" s
