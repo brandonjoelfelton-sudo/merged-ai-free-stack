@@ -20,7 +20,7 @@ function rollTheme(){
     r.setProperty("--accent", `hsl(${(hue+180)%360}, 75%, 62%)`);
     r.setProperty("--accent2", `hsl(${hue2}, 65%, 68%)`);
     r.setProperty("--card-bg", "rgba(255,255,255,.04)");
-    r.setProperty("--card-line", "rgba(255,255,255,.12%)");
+    r.setProperty("--card-line", "rgba(255,255,255,.12)");
   }else{
     r.setProperty("--bg1", `hsl(${hue}, 40%, 93%)`);
     r.setProperty("--bg2", `hsl(${hue2}, 38%, 88%)`);
