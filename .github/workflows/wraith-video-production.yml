@@ -1,0 +1,70 @@
+name: WRAITH stock footage acquisition
+on:
+  push:
+    branches: [wraith-video-production]
+    paths: ['.github/workflows/wraith-video-production.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  acquire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Install browser
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Download commercially licensed clips through official page
+        run: |
+          mkdir -p footage
+          python - <<'PY'
+          from playwright.sync_api import sync_playwright
+          import pathlib, json, subprocess
+          sources = {
+            '04_watch': 'https://mixkit.co/free-stock-video/hands-holding-a-smart-watch-with-the-stopwatch-running-32808/',
+            '04_ride': 'https://mixkit.co/free-stock-video/man-on-motorcycle-on-a-road-close-up-39929/',
+            '05_night': 'https://mixkit.co/free-stock-video/a-person-wearing-a-helmet-rides-on-a-motorbike-through-100236/',
+            '06_mountain': 'https://mixkit.co/free-stock-video/motorcyclist-going-down-a-road-seen-from-the-front-39930/',
+            '07_helmet': 'https://mixkit.co/free-stock-video/biker-putting-on-his-helmet-43105/',
+            '07_bike': 'https://mixkit.co/free-stock-video/man-setting-off-on-a-big-motorcycle-41938/',
+          }
+          report = {}
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True)
+              context = browser.new_context(accept_downloads=True)
+              page = context.new_page()
+              for name,url in sources.items():
+                  target = pathlib.Path('footage') / (name + '.mp4')
+                  try:
+                      page.goto(url, wait_until='domcontentloaded', timeout=25000)
+                      page.get_by_text('Mixkit Stock Video Free License', exact=True).first.wait_for(timeout=12000)
+                      for label in ['Accept all','Accept cookies','I agree']:
+                          btn = page.get_by_role('button',name=label,exact=False).first
+                          if btn.count() and btn.is_visible():
+                              btn.click(timeout=1500)
+                              break
+                      full = page.get_by_text('Full HD', exact=False).first
+                      if full.count() and full.is_visible():
+                          full.click(timeout=2000)
+                      button = page.get_by_text('Download Free Video', exact=True).first
+                      with page.expect_download(timeout=25000) as event:
+                          button.click(timeout=8000)
+                      event.value.save_as(str(target))
+                      subprocess.run(['ffprobe','-v','error','-select_streams','v:0','-show_entries','stream=codec_name','-of','csv=p=0',str(target)],check=True)
+                      report[name] = {'source':url,'license':'Mixkit Stock Video Free License','bytes':target.stat().st_size}
+                  except Exception as e:
+                      target.unlink(missing_ok=True)
+                      report[name] = {'source':url,'error':str(e)}
+                  print(name,report[name],flush=True)
+              browser.close()
+          pathlib.Path('footage/source-report.json').write_text(json.dumps(report,indent=2))
+          PY
+      - name: Upload source clips and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wraith-source-footage
+          path: footage/
+          if-no-files-found: error
+          retention-days: 1
