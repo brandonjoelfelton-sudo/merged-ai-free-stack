@@ -3,16 +3,22 @@ on:
   push:
     branches: [wraith-video-production]
     paths: ['.github/workflows/wraith-video-production.yml']
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths: ['.github/workflows/wraith-video-production.yml']
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   acquire:
+    if: github.event_name != 'pull_request' || github.head_ref == 'wraith-video-production'
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
       - name: Install browser
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
           python -m pip install playwright
           python -m playwright install --with-deps chromium
       - name: Download commercially licensed clips through official page
@@ -60,11 +66,54 @@ jobs:
               browser.close()
           pathlib.Path('footage/source-report.json').write_text(json.dumps(report,indent=2))
           PY
-      - name: Upload source clips and report
+      - name: Render edited concept cuts
+        run: |
+          mkdir -p renders
+          cp footage/source-report.json renders/source-report.json
+          python - <<'PY'
+          import pathlib, subprocess, json
+          p=pathlib.Path('footage')
+          out=pathlib.Path('renders')
+          jobs=[
+            ('04_Ride_Connected',['04_watch','04_ride'],'RIDE CONNECTED','SMARTWATCH + HELMET / CONCEPT'),
+            ('05_After_Dark',['05_night'],'AFTER DARK','WRA1TH V1S1ON / CONCEPT'),
+            ('06_Electric_Freedom',['06_mountain'],'ELECTRIC FREEDOM','EXPLORE THE NEXT GENERATION'),
+            ('07_Founders_Edition',['07_helmet','07_bike'],"FOUNDERS EDITION",'JOIN THE FREE INTEREST LIST'),
+          ]
+          results={}
+          font='/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf'
+          for name,parts,headline,sub in jobs:
+              if not all((p/(part+'.mp4')).exists() for part in parts):
+                  results[name]='missing required source'; continue
+              inputs=[]
+              filters=[]
+              for i,part in enumerate(parts):
+                  inputs+=['-i',str(p/(part+'.mp4'))]
+                  filters.append(f"[{i}:v]trim=duration={5 if len(parts)>1 else 9},setpts=PTS-STARTPTS,scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1,fps=30,format=yuv420p[v{i}]")
+              inputs+=['-f','lavfi','-i','color=c=0x06110d:s=1080x1920:r=30:d=2.5']
+              filters.append(f"[{len(parts)}:v]setsar=1,format=yuv420p[end]")
+              label=''.join(f'[v{i}]' for i in range(len(parts)))
+              filters.append(f"{label}[end]concat=n={len(parts)+1}:v=1:a=0[base]")
+              endstart=10 if len(parts)>1 else 9
+              filters.append(f"[base]drawtext=fontfile={font}:text='{headline}':fontsize=56:fontcolor=white:x=(w-tw)/2:y=220:box=1:boxcolor=black@0.45:boxborderw=12:enable='lt(t,3)',drawtext=fontfile={font}:text='WRA1TH M0T0':fontsize=44:fontcolor=0x9bffd1:x=(w-tw)/2:y=115,drawtext=fontfile={font}:text='ILLUSTRATIVE FOOTAGE / PRODUCT IN DEVELOPMENT':fontsize=25:fontcolor=white:x=(w-tw)/2:y=h-180:box=1:boxcolor=black@0.65:boxborderw=8,drawtext=fontfile={font}:text='SILENCE HAS POWER':fontsize=58:fontcolor=white:x=(w-tw)/2:y=h/2-45:enable='gte(t,{endstart})',drawtext=fontfile={font}:text='{sub}':fontsize=31:fontcolor=0x9bffd1:x=(w-tw)/2:y=h/2+65:enable='gte(t,{endstart})'[video]")
+              target=out/(name+'.mp4')
+              cmd=['ffmpeg','-hide_banner','-loglevel','error','-y']+inputs+['-filter_complex_threads','2','-filter_complex',';'.join(filters),'-map','[video]','-an','-c:v','libx264','-preset','fast','-crf','20','-movflags','+faststart',str(target)]
+              try:
+                  subprocess.run(cmd,check=True)
+                  subprocess.run(['ffmpeg','-v','error','-xerror','-i',str(target),'-f','null','-'],check=True)
+                  results[name]='silent edited concept cut; audio and HUD pending'
+              except Exception as e:
+                  target.unlink(missing_ok=True)
+                  results[name]=str(e)
+          (out/'render-report.json').write_text(json.dumps(results,indent=2))
+          print(results)
+          if not list(out.glob('*.mp4')): raise SystemExit('No cuts rendered')
+          PY
+      - name: Upload edited cuts and reports only
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: wraith-source-footage
-          path: footage/
+          name: wraith-edited-concept-cuts
+          path: renders/
           if-no-files-found: error
           retention-days: 1
