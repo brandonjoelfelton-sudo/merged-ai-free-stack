@@ -26,7 +26,7 @@ jobs:
           mkdir -p footage
           python - <<'PY'
           from playwright.sync_api import sync_playwright
-          import pathlib, json, subprocess
+          import pathlib, json, subprocess, re
           sources = {
             '04_watch': 'https://mixkit.co/free-stock-video/hands-holding-a-smart-watch-with-the-stopwatch-running-32808/',
             '04_ride': 'https://mixkit.co/free-stock-video/man-on-motorcycle-on-a-road-close-up-39929/',
@@ -50,12 +50,13 @@ jobs:
                           if btn.count() and btn.is_visible():
                               btn.click(timeout=1500)
                               break
-                      full = page.get_by_text('Full HD', exact=False).first
-                      if full.count() and full.is_visible():
-                          full.click(timeout=2000)
-                      button = page.get_by_text('Download Free Video', exact=True).first
-                      with page.expect_download(timeout=25000) as event:
-                          button.click(timeout=8000)
+                      # Select the official download form, including input[type=submit].
+                      print('controls', page.locator('button, input[type=submit], a[download]').evaluate_all("(els) => els.map(e => ({tag:e.tagName, text:(e.innerText||e.value||'').trim(), title:e.title, aria:e.getAttribute('aria-label')})).slice(0,40)"), flush=True)
+                      candidates = page.get_by_role('button', name=re.compile(r'download.*(?:free|video)|free.*download', re.I)).or_(page.locator('input[type=submit][value*="Download" i]')).or_(page.get_by_role('link',name=re.compile(r'download free video', re.I)))
+                      button = next((candidates.nth(i) for i in range(candidates.count()) if candidates.nth(i).is_visible()), None)
+                      if button is None: raise RuntimeError('Official download control not found')
+                      with page.expect_download(timeout=40000) as event:
+                          button.click(timeout=10000)
                       event.value.save_as(str(target))
                       subprocess.run(['ffprobe','-v','error','-select_streams','v:0','-show_entries','stream=codec_name','-of','csv=p=0',str(target)],check=True)
                       report[name] = {'source':url,'license':'Mixkit Stock Video Free License','bytes':target.stat().st_size}
@@ -116,4 +117,4 @@ jobs:
           name: wraith-edited-concept-cuts
           path: renders/
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 2
